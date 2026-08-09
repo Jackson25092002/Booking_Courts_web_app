@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import courtImage from "../assets/home_page.jpg";
 import { getApiError } from "../services/api";
 import { getCourts, type Court } from "../services/courtService";
+import { Clock3, HeartIcon, MapPin, Star } from "lucide-react";
 import "./HomePage.css";
 
 function HomePage() {
@@ -100,6 +101,9 @@ function HomePage() {
                 <option value="Quận Tân Phú">Quận Tân Phú</option>
                 <option value="Quận 10">Quận 10</option>
                 <option value="Thành phố Thủ Đức">Thành phố Thủ Đức</option>
+                <option value="Quận 1">Quận 1</option>
+                <option value="Quận 3">Quận 3</option>
+                
               </select>
             </div>
 
@@ -108,10 +112,10 @@ function HomePage() {
               <input id="date" name="date" type="date" />
             </div>
 
-            <div className="court-search__field">
+            {/* <div className="court-search__field">
               <label htmlFor="time">Khung giờ</label>
               <input id="time" name="time" type="time" />
-            </div>
+            </div> */}
 
             <button type="submit" className="court-search__button">
               Tìm sân
@@ -148,21 +152,29 @@ function HomePage() {
                 <div className="recommended-court-card__image">
                   <img src={court.imageUrl || courtImage} alt={`Không gian ${court.name}`} />
                   <span>{court.fields.length > 0 ? "Đang hoạt động" : "Tạm ngưng"}</span>
-                  <button type="button" aria-label={`Yêu thích ${court.name}`}>♡</button>
+                  <button type="button" aria-label={`Yêu thích ${court.name}`}>
+                    <HeartIcon />
+                  </button>
                 </div>
 
                 <div className="recommended-court-card__body">
                   <h3>{court.name}</h3>
-                  <p className="recommended-court-card__address">⌖ {court.address}</p>
+                  <p className="recommended-court-card__address"><MapPin size={20} aria-hidden="true" /> {court.address}</p>
 
                   <div className="recommended-court-card__meta">
-                    <span>★ <strong>{court.averageRating || "Mới"}</strong></span>
+                    <span className="recommended-court-card__rating">
+                      <Star size={16} aria-hidden="true"/> 
+                      <strong>{court.averageRating || "Mới"}</strong>
+                    </span>
                     <span>{court.reviewCount} đánh giá</span>
-                    <span>{court.fields.length} sân con</span>
+                    <span>{court.fields.length} Sân </span>
                   </div>
 
                   <p className="recommended-court-card__hours">
+                    <Clock3 size={16} aria-hidden="true" />
+                    <span>
                     Giờ hoạt động: {court.openTime}–{court.closeTime}
+                    </span>
                   </p>
 
                   <div className="recommended-court-card__footer">

@@ -272,21 +272,46 @@
 }
 
 .recommended-court-card__address {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   min-height: 38px;
   margin: 0;
   overflow: hidden;
   color: #64748b;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
+}
+
+.recommended-court-card__address svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  display: block;
 }
 
 .recommended-court-card__meta {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 6px 10px;
-  margin-top: 12px;
+  /* margin-top: 12px; */
   color: #64748b;
-  font-size: 11px;
+  font-size: 14px;
+}
+
+.recommended-court-card__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}
+
+.recommended-court-card__meta svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  display: block;
 }
 
 .recommended-court-card__meta span:first-child {
@@ -298,9 +323,20 @@
 }
 
 .recommended-court-card__hours {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 12px 0 0;
   color: #475569;
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.recommended-court-card__hours svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  display: block;
 }
 
 .recommended-court-card__footer {
@@ -316,7 +352,7 @@
 .recommended-court-card__footer p {
   margin: 0;
   color: #64748b;
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .recommended-court-card__footer strong {
