@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  CUSTOMER
+  OWNER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  PAID
+  CANCELLED
+  COMPLETED
+}
+
+enum MatchStatus {
+  OPEN
+  FULL
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  fullName     String   @map("full_name") @db.VarChar(100)
+  email        String   @unique @db.VarChar(255)
+  phone        String?  @unique @db.VarChar(20)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         UserRole @default(CUSTOMER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  ownedCourts      Court[]   @relation("CourtOwner")
+  bookings         Booking[]
+  reviews          Review[]
+  organizedMatches Match[]   @relation("MatchOrganizer")
+
+  @@map("users")
+}
+
+model Court {
+  id           String   @id @default(uuid()) @db.Uuid
+  ownerId      String   @map("owner_id") @db.Uuid
+  slug         String   @unique @db.VarChar(150)
+  name         String   @db.VarChar(150)
+  district     String   @db.VarChar(100)
+  address      String   @db.VarChar(255)
+  description  String?  @db.Text
+  pricePerHour Int      @map("price_per_hour")
+  imageUrl     String?  @map("image_url") @db.VarChar(500)
+  openTime     String   @default("06:00") @map("open_time") @db.VarChar(5)
+  closeTime    String   @default("23:00") @map("close_time") @db.VarChar(5)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  owner    User         @relation("CourtOwner", fields: [ownerId], references: [id])
+  fields   CourtField[]
+  bookings Booking[]
+  reviews  Review[]
+  matches  Match[]
+
+  @@index([ownerId])
+  @@index([district])
+  @@map("courts")
+}
+
+model CourtField {
+  id       String  @id @default(uuid()) @db.Uuid
+  courtId  String  @map("court_id") @db.Uuid
+  name     String  @db.VarChar(100)
+  isActive Boolean @default(true) @map("is_active")
+
+  court        Court         @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  bookingSlots BookingSlot[]
+
+  @@unique([courtId, name])
+  @@index([courtId])
+  @@map("court_fields")
+}
+
+model Booking {
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  courtId     String        @map("court_id") @db.Uuid
+  status      BookingStatus @default(PENDING)
+  totalAmount Int           @map("total_amount")
+  note        String?       @db.VarChar(500)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  user  User          @relation(fields: [userId], references: [id])
+  court Court         @relation(fields: [courtId], references: [id])
+  slots BookingSlot[]
+
+  @@index([userId])
+  @@index([courtId])
+  @@index([status])
+  @@map("bookings")
+}
+
+model BookingSlot {
+  id           String   @id @default(uuid()) @db.Uuid
+  bookingId    String   @map("booking_id") @db.Uuid
+  courtFieldId String   @map("court_field_id") @db.Uuid
+  startsAt     DateTime @map("starts_at")
+  endsAt       DateTime @map("ends_at")
+  price        Int
+
+  booking    Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  courtField CourtField @relation(fields: [courtFieldId], references: [id])
+
+  // Ngăn hai booking cùng sân con và cùng giờ bắt đầu.
+  @@unique([courtFieldId, startsAt])
+  @@index([bookingId])
+  @@index([courtFieldId, startsAt])
+  @@map("booking_slots")
+}
+
+model Review {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  courtId   String   @map("court_id") @db.Uuid
+  rating    Int
+  comment   String?  @db.VarChar(1000)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  court Court @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  // Mỗi người chỉ đánh giá một lần cho mỗi sân.
+  @@unique([userId, courtId])
+  @@index([courtId])
+  @@map("reviews")
+}
+
+model Match {
+  id             String      @id @default(uuid()) @db.Uuid
+  organizerId    String      @map("organizer_id") @db.Uuid
+  courtId        String?     @map("court_id") @db.Uuid
+  title          String      @db.VarChar(150)
+  description    String?     @db.VarChar(1000)
+  level          String      @db.VarChar(50)
+  startsAt       DateTime    @map("starts_at")
+  maxPlayers     Int         @map("max_players")
+  currentPlayers Int         @default(1) @map("current_players")
+  status         MatchStatus @default(OPEN)
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  organizer User   @relation("MatchOrganizer", fields: [organizerId], references: [id])
+  court     Court? @relation(fields: [courtId], references: [id])
+
+  @@index([organizerId])
+  @@index([courtId])
+  @@index([startsAt, status])
+  @@map("matches")
+}

@@ -1,0 +1,157 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header__container {
+  max-width: 1200px;
+  min-height: 74px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #14532d;
+  text-decoration: none;
+}
+
+.header__logo-image {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+}
+
+.header__logo strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.header__logo small {
+  display: block;
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.header__link {
+  position: relative;
+  padding: 27px 0;
+
+  color: #374151;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.header__link:hover,
+.header__link--active {
+  color: #15803d;
+}
+
+.header__link--active::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  height: 3px;
+  background-color: #16a34a;
+  border-radius: 3px 3px 0 0;
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header__login,
+.header__register,
+.header__logout {
+  padding: 10px 18px;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.header__login {
+  color: #15803d;
+  border: 1px solid #16a34a;
+}
+
+.header__register {
+  color: #ffffff;
+  background-color: #16a34a;
+  border: 1px solid #16a34a;
+}
+
+.header__user-name {
+  max-width: 140px;
+  overflow: hidden;
+  color: #14532d;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header__logout {
+  color: #15803d;
+  background: #ffffff;
+  border: 1px solid #16a34a;
+  cursor: pointer;
+}
+
+.header__login:hover {
+  background-color: #f0fdf4;
+}
+
+.header__logout:hover {
+  background-color: #f0fdf4;
+}
+
+.header__register:hover {
+  background-color: #15803d;
+}
+
+@media (max-width: 768px) {
+  .header__container {
+    min-height: 64px;
+    padding: 0 16px;
+  }
+
+  .header__logo small,
+  .header__nav {
+    display: none;
+  }
+
+  .header__login {
+    display: none;
+  }
+
+  .header__user-name {
+    display: none;
+  }
+}
