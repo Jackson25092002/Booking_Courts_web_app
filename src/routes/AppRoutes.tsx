@@ -9,6 +9,7 @@ import BookingHistoryPage from "../pages/BookingHistoryPage";
 import RequireAuth from "../components/auth/RequireAuth";
 import ComingSoonPage from "../pages/ComingSoonPage";
 import BookingPage from "../pages/BookingPage";
+import ProfilePage from "../pages/ProfilePage";
 
 function AppRoutes() {
   return (
@@ -21,6 +22,14 @@ function AppRoutes() {
         <Route path="/courts" element={<CourtListPage />} />
         <Route path="/courts/:id" element={<BookingPage />} />
         <Route path="/courts/:id/booking" element={<BookingPage />} />
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth>
+              <ProfilePage />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/history"
           element={

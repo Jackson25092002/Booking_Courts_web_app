@@ -1,4 +1,4 @@
-import { useEffect, useState, type PropsWithChildren } from "react";
+import { useCallback, useEffect, useState, type PropsWithChildren } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN_KEY } from "../services/api";
 import {
@@ -94,6 +94,11 @@ function AuthProvider({ children }: PropsWithChildren) {
     setUser(null);
   }
 
+  const updateUser = useCallback((nextUser: AuthUser) => {
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));
+    setUser(nextUser);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -102,6 +107,7 @@ function AuthProvider({ children }: PropsWithChildren) {
         isAuthLoading,
         signIn,
         signOut,
+        updateUser,
       }}
     >
       {children}

@@ -7,8 +7,29 @@ export interface AuthUser {
   fullName: string;
   email: string;
   phone: string | null;
+  avatarUrl?: string | null;
+  gender?: "MALE" | "FEMALE" | "OTHER" | null;
+  birthDate?: string | null;
+  playDistrict?: string | null;
+  skillLevel?: "A" | "B" | "C" | "D" | null;
   role: UserRole;
   createdAt?: string;
+}
+
+export interface ProfileStats {
+  bookingCount: number;
+  completedBookingCount: number;
+  reviewCount: number;
+}
+
+export interface UpdateProfileInput {
+  fullName: string;
+  phone: string | null;
+  avatarUrl: string | null;
+  gender: AuthUser["gender"];
+  birthDate: string | null;
+  playDistrict: string;
+  skillLevel: AuthUser["skillLevel"];
 }
 
 export interface RegisterInput {
@@ -55,6 +76,15 @@ export async function login(input: LoginInput) {
 }
 
 export async function getCurrentUser() {
-  const response = await api.get<ApiResponse<{ user: AuthUser }>>("/api/auth/me");
+  const response = await api.get<
+    ApiResponse<{ user: AuthUser; stats: ProfileStats }>
+  >("/api/auth/me");
+  return response.data;
+}
+
+export async function updateCurrentUser(input: UpdateProfileInput) {
+  const response = await api.patch<
+    ApiResponse<{ user: AuthUser; stats: ProfileStats }>
+  >("/api/auth/me", input);
   return response.data;
 }

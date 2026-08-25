@@ -33,6 +33,11 @@ model User {
   fullName     String   @map("full_name") @db.VarChar(100)
   email        String   @unique @db.VarChar(255)
   phone        String?  @unique @db.VarChar(20)
+  avatarUrl    String?  @map("avatar_url") @db.VarChar(500)
+  gender       String?  @db.VarChar(20)
+  birthDate    DateTime? @map("birth_date") @db.Date
+  playDistrict String?  @map("play_district") @db.VarChar(100)
+  skillLevel   String?  @map("skill_level") @db.VarChar(20)
   passwordHash String   @map("password_hash") @db.VarChar(255)
   role         UserRole @default(CUSTOMER)
   createdAt    DateTime @default(now()) @map("created_at")

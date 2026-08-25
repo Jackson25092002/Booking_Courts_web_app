@@ -115,6 +115,11 @@
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-decoration: none;
+}
+
+.header__user-name:hover {
+  color: #16a34a;
 }
 
 .header__logout {

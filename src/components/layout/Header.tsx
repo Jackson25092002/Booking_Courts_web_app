@@ -75,9 +75,9 @@ function Header() {
         <div className="header__actions">
           {isAuthenticated && user ? (
             <>
-              <span className="header__user-name" title={user.fullName}>
+              <NavLink to="/profile" className="header__user-name" title={user.fullName}>
                 {user.fullName}
-              </span>
+              </NavLink>
               <button className="header__logout" type="button" onClick={signOut}>
                 Đăng xuất
               </button>
