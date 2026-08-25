@@ -8,6 +8,7 @@ import {
   type Court,
   type CourtSort,
 } from "../services/courtService";
+import { Search,  } from "lucide-react";
 import "./CourtListPage.css";
 
 const PAGE_SIZE = 4;
@@ -155,7 +156,6 @@ function CourtListPage() {
           <label>
             <span>Tên sân hoặc địa chỉ</span>
             <span className="court-search-panel__control">
-              <span aria-hidden="true">⌕</span>
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -178,9 +178,11 @@ function CourtListPage() {
               <option value="1">1 giờ</option>
               <option value="1.5">1.5 giờ</option>
               <option value="2">2 giờ</option>
+              <option value="2.5">2.5 giờ</option>
+              <option value="3">3 giờ</option> 
             </select>
           </label>
-          <button type="submit">⌕&nbsp;&nbsp; Tìm kiếm</button>
+          <button type="submit"> <Search></Search> Tìm kiếm</button>
         </form>
 
         <div className="court-results-layout">
@@ -238,12 +240,12 @@ function CourtListPage() {
               ))}
             </fieldset>
 
-            <fieldset>
+            {/* <fieldset>
               <legend>⌁&nbsp; Sân con</legend>
               <span className="court-filter-note">
                 Thông tin sân con được lấy trực tiếp từ hệ thống.
               </span>
-            </fieldset>
+            </fieldset> */}
 
             <label className="court-availability-toggle">
               <span>Chỉ hiện sân đang hoạt động</span>

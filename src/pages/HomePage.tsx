@@ -102,8 +102,6 @@ function HomePage() {
                 <option value="Quận 10">Quận 10</option>
                 <option value="Thành phố Thủ Đức">Thành phố Thủ Đức</option>
                 <option value="Quận 1">Quận 1</option>
-                <option value="Quận 3">Quận 3</option>
-                
               </select>
             </div>
 
