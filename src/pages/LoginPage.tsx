@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthIcon from "../components/auth/AuthIcon";
 import { useAuth } from "../contexts/useAuth";
@@ -18,7 +18,16 @@ function LoginPage() {
     message?: string;
     from?: string;
   } | null;
-  const successMessage = routeState?.successMessage ?? routeState?.message;
+  const successMessage = routeState?.successMessage;
+  const [noticeMessage, setNoticeMessage] = useState(routeState?.message ?? "");
+
+  useEffect(() => {
+    setNoticeMessage(routeState?.message ?? "");
+
+    if (!routeState?.message) return;
+    const timeoutId = window.setTimeout(() => setNoticeMessage(""), 5000);
+    return () => window.clearTimeout(timeoutId);
+  }, [routeState?.message]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,6 +51,23 @@ function LoginPage() {
 
   return (
     <main className="auth-page">
+      {noticeMessage && (
+        <div className="auth-toast" role="status" aria-live="polite">
+          <span className="auth-toast__icon" aria-hidden="true">i</span>
+          <div>
+            <strong>Cần đăng nhập</strong>
+            <p>{noticeMessage}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNoticeMessage("")}
+            aria-label="Đóng thông báo"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <Link className="auth-page__logo" to="/" aria-label="Về trang chủ">
         <img src={logoLenKeo} alt="Lên Kèo Thôi" />
       </Link>

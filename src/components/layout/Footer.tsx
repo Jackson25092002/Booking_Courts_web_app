@@ -1,8 +1,25 @@
-import { Link } from "react-router-dom";
+import type { MouseEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/useAuth";
 import logoLenKeo from "../../assets/logo_len_keo.png";
 import "./Footer.css";
 
 function Footer() {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  function handleHistoryClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (isAuthenticated) return;
+
+    event.preventDefault();
+    navigate("/login", {
+      state: {
+        from: "/history",
+        message: "Vui lòng đăng nhập để xem lịch sử đặt sân.",
+      },
+    });
+  }
+
   return (
     <footer className="footer">
       <div className="footer__content">
@@ -20,7 +37,7 @@ function Footer() {
             <Link to="/">Trang chủ</Link>
             <Link to="/courts">Danh sách sân</Link>
             <Link to="/matches">Lên kèo</Link>
-            <Link to="/history">Lịch sử đặt sân</Link>
+            <Link to="/history" onClick={handleHistoryClick}>Lịch sử đặt sân</Link>
           </nav>
         </section>
 

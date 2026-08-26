@@ -1,10 +1,25 @@
-import { NavLink } from "react-router-dom";
+import type { MouseEvent } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { CircleUserRound } from "lucide-react";
 import { useAuth } from "../../contexts/useAuth";
 import logoLenKeo from "../../assets/logo_len_keo.png";
 import "./Header.css";
 
 function Header() {
   const { user, isAuthenticated, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  function handleHistoryClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (isAuthenticated) return;
+
+    event.preventDefault();
+    navigate("/login", {
+      state: {
+        from: "/history",
+        message: "Vui lòng đăng nhập để xem lịch sử đặt sân.",
+      },
+    });
+  }
 
   return (
     <header className="header">
@@ -48,6 +63,7 @@ function Header() {
           </NavLink>
           <NavLink
             to="/history"
+            onClick={handleHistoryClick}
             className={({ isActive }) =>
               isActive ? "header__link header__link--active" : "header__link"
             }
@@ -75,8 +91,18 @@ function Header() {
         <div className="header__actions">
           {isAuthenticated && user ? (
             <>
-              <NavLink to="/profile" className="header__user-name" title={user.fullName}>
-                {user.fullName}
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  isActive
+                    ? "header__user-name header__user-name--active"
+                    : "header__user-name"
+                }
+                title={`Xem trang cá nhân của ${user.fullName}`}
+                aria-label={`Trang cá nhân của ${user.fullName}`}
+              >
+                <CircleUserRound aria-hidden="true" />
+                <span>{user.fullName}</span>
               </NavLink>
               <button className="header__logout" type="button" onClick={signOut}>
                 Đăng xuất

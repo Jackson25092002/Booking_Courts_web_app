@@ -16,8 +16,7 @@
   width: 120px;
   height: 120px;
   margin-bottom: 38px;
-  overflow: hidden;
-  background: #ffffff;
+  background: transparent;
 }
 
 .auth-page__logo img {
@@ -25,6 +24,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  mix-blend-mode: multiply;
 }
 
 .auth-card {
@@ -195,6 +195,77 @@
   font-size: 14px;
 }
 
+.auth-toast {
+  position: fixed;
+  top: 22px;
+  right: 22px;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  width: min(390px, calc(100vw - 32px));
+  padding: 14px 14px 14px 16px;
+  align-items: start;
+  gap: 11px;
+  color: #173b2b;
+  background: #ffffff;
+  border: 1px solid #bbf7d0;
+  border-left: 4px solid #16a34a;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgb(15 55 35 / 18%);
+  animation: auth-toast-in 180ms ease-out;
+}
+
+.auth-toast__icon {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  color: #ffffff;
+  background: #16a34a;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.auth-toast strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 14px;
+}
+
+.auth-toast p {
+  margin: 0;
+  color: #52665b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.auth-toast button {
+  padding: 0 3px;
+  color: #6b7d73;
+  background: transparent;
+  border: 0;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.auth-toast button:hover {
+  color: #14532d;
+}
+
+@keyframes auth-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .auth-divider {
   display: flex;
   margin: 32px 0;
@@ -285,6 +356,11 @@
 }
 
 @media (max-width: 600px) {
+  .auth-toast {
+    top: 12px;
+    right: 16px;
+  }
+
   .auth-page {
     padding: 32px 16px;
     justify-content: flex-start;

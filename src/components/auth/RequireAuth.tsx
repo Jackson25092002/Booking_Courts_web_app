@@ -15,7 +15,12 @@ function RequireAuth({ children }: PropsWithChildren) {
       <Navigate
         to="/login"
         replace
-        state={{ from: `${location.pathname}${location.search}` }}
+        state={{
+          from: `${location.pathname}${location.search}`,
+          message: location.pathname === "/history"
+            ? "Vui lòng đăng nhập để xem lịch sử đặt sân."
+            : "Vui lòng đăng nhập để sử dụng chức năng này.",
+        }}
       />
     );
   }
