@@ -11,12 +11,21 @@ import ComingSoonPage from "../pages/ComingSoonPage";
 import BookingPage from "../pages/BookingPage";
 import ProfilePage from "../pages/ProfilePage";
 import MatchPage from "../pages/MatchPage";
+import OwnerDashboardPage from "../pages/OwnerDashboardPage";
 
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route
+        path="/owner"
+        element={
+          <RequireAuth>
+            <OwnerDashboardPage />
+          </RequireAuth>
+        }
+      />
 
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
@@ -40,16 +49,6 @@ function AppRoutes() {
           }
         />
         <Route path="/matches" element={<MatchPage />} />
-        <Route
-          path="/owner"
-          element={
-            <ComingSoonPage
-              eyebrow="Đối tác sân cầu"
-              title="Dành cho chủ sân"
-              description="Khu vực quản lý sân, lịch và doanh thu đang được hoàn thiện."
-            />
-          }
-        />
         <Route
           path="/help"
           element={

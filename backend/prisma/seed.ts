@@ -265,6 +265,28 @@ async function seedBookings() {
       startsAt: new Date("2026-08-09T19:00:00+07:00"),
       endsAt: new Date("2026-08-09T20:30:00+07:00"),
     },
+    {
+      id: "30000000-0000-4000-8000-000000000003",
+      userId: ids.customer1,
+      courtId: ids.courts[0],
+      status: "PAID" as const,
+      totalAmount: 170000,
+      note: "Booking mẫu cho dashboard chủ sân",
+      fieldId: ids.fields[0],
+      startsAt: new Date("2026-08-27T19:00:00+07:00"),
+      endsAt: new Date("2026-08-27T21:00:00+07:00"),
+    },
+    {
+      id: "30000000-0000-4000-8000-000000000004",
+      userId: ids.customer2,
+      courtId: ids.courts[0],
+      status: "PENDING" as const,
+      totalAmount: 85000,
+      note: "Booking chờ xác nhận trên dashboard",
+      fieldId: ids.fields[1],
+      startsAt: new Date("2026-08-27T20:00:00+07:00"),
+      endsAt: new Date("2026-08-27T21:00:00+07:00"),
+    },
   ];
 
   for (const booking of bookings) {
