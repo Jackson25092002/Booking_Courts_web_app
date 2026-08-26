@@ -10,6 +10,7 @@ import RequireAuth from "../components/auth/RequireAuth";
 import ComingSoonPage from "../pages/ComingSoonPage";
 import BookingPage from "../pages/BookingPage";
 import ProfilePage from "../pages/ProfilePage";
+import MatchPage from "../pages/MatchPage";
 
 function AppRoutes() {
   return (
@@ -38,16 +39,7 @@ function AppRoutes() {
             </RequireAuth>
           }
         />
-        <Route
-          path="/matches"
-          element={
-            <ComingSoonPage
-              eyebrow="Kết nối cộng đồng"
-              title="Tìm kèo cầu lông"
-              description="Tính năng tìm người chơi cùng trình độ đang được hoàn thiện cho phiên bản tiếp theo."
-            />
-          }
-        />
+        <Route path="/matches" element={<MatchPage />} />
         <Route
           path="/owner"
           element={
