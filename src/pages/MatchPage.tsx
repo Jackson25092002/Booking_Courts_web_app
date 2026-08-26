@@ -20,6 +20,27 @@ import "./MatchPage.css";
 
 const mapCenter: [number, number] = [10.79, 106.67];
 
+type MapStyle = "street" | "topographic";
+
+/**
+ * CẤU HÌNH NHÀ CUNG CẤP BẢN ĐỒ:
+ * - Thay `url` và `attribution` tại đây nếu muốn dùng MapTiler, Mapbox, Google Maps...
+ * - Với dịch vụ cần API key, khai báo key trong `.env`, ví dụ:
+ *   VITE_MAP_TILE_KEY=your_key
+ * - Sau đó ghép key bằng `import.meta.env.VITE_MAP_TILE_KEY` trong URL.
+ * - Không ghi API key trực tiếp vào source code hoặc commit key thật lên GitHub.
+ */
+const MAP_TILE_PROVIDERS: Record<MapStyle, { url: string; attribution: string }> = {
+  street: {
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  },
+  topographic: {
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+  },
+};
+
 function formatMatchDate(value: string) {
   return new Intl.DateTimeFormat("vi-VN", {
     weekday: "short",
@@ -58,8 +79,11 @@ function MatchPage() {
   const [district, setDistrict] = useState("");
   const [level, setLevel] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [mapStyle, setMapStyle] = useState<MapStyle>("street");
+  const [tileFailed, setTileFailed] = useState(false);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const activeTileProvider = MAP_TILE_PROVIDERS[mapStyle];
 
   useEffect(() => {
     let ignore = false;
@@ -197,10 +221,16 @@ function MatchPage() {
         </div>
 
         <aside className="match-map" aria-label="Bản đồ vị trí các kèo">
+          {/* `mapCenter` là tâm mặc định; marker lấy latitude/longitude của sân từ API. */}
           <MapContainer center={mapCenter} zoom={12} scrollWheelZoom zoomControl={false}>
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              key={mapStyle}
+              attribution={activeTileProvider.attribution}
+              url={activeTileProvider.url}
+              eventHandlers={{
+                tileload: () => setTileFailed(false),
+                tileerror: () => setTileFailed(true),
+              }}
             />
             <ZoomControl position="topright" />
             {filteredMatches.map((match) => {
@@ -223,6 +253,26 @@ function MatchPage() {
               );
             })}
           </MapContainer>
+          <label className="match-map__style-picker">
+            <span>Nền bản đồ</span>
+            <select value={mapStyle} onChange={(event) => {
+              setTileFailed(false);
+              setMapStyle(event.target.value as MapStyle);
+            }}>
+              <option value="street">Đường phố</option>
+              <option value="topographic">Địa hình</option>
+            </select>
+          </label>
+          {tileFailed && (
+            <div className="match-map__error" role="status">
+              <strong>Không tải được nền bản đồ</strong>
+              <span>Hãy kiểm tra Internet, DNS, VPN hoặc tiện ích chặn nội dung.</span>
+              <button type="button" onClick={() => {
+                setTileFailed(false);
+                setMapStyle((current) => current === "street" ? "topographic" : "street");
+              }}>Thử lại</button>
+            </div>
+          )}
           <div className="match-map__legend"><span>● Nhiều kèo</span><span>● Ít kèo</span><span>● Đang chọn</span></div>
         </aside>
       </section>

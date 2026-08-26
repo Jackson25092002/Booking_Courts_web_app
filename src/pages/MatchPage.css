@@ -171,6 +171,45 @@
 .match-map__legend span:last-child { color: #c41e1e; }
 .leaflet-popup-content svg { vertical-align: -2px; }
 
+.match-map__style-picker {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 500;
+  display: flex;
+  padding: 8px 10px;
+  align-items: center;
+  gap: 8px;
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid #cad7ce;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgb(0 0 0 / 12%);
+}
+
+.match-map__style-picker span { color: #52665b; font-size: 12px; }
+.match-map__style-picker select { color: #173b2b; background: transparent; border: 0; outline: 0; font-weight: 700; cursor: pointer; }
+
+.match-map__error {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  z-index: 600;
+  display: flex;
+  width: min(430px, calc(100% - 110px));
+  padding: 12px 14px;
+  align-items: center;
+  gap: 10px;
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid #f4c7c7;
+  border-radius: 10px;
+  box-shadow: 0 5px 18px rgb(0 0 0 / 12%);
+  transform: translateX(-50%);
+}
+
+.match-map__error strong { color: #a82121; font-size: 13px; }
+.match-map__error span { flex: 1; color: #5f6e64; font-size: 12px; }
+.match-map__error button { padding: 7px 10px; color: #fff; background: #08764f; border: 0; border-radius: 6px; cursor: pointer; }
+
 @media (max-width: 1000px) {
   .match-search-panel { grid-template-columns: 1fr 1fr; }
   .match-search-panel > button { height: 52px; }
