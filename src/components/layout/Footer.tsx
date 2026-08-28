@@ -44,7 +44,6 @@ function Footer() {
         <section className="footer__column">
           <h2>Chính sách</h2>
           <nav aria-label="Chính sách và hỗ trợ">
-            <Link to="/help">Trợ giúp</Link>
             <Link to="/terms">Điều khoản sử dụng</Link>
             <Link to="/privacy">Chính sách bảo mật</Link>
           </nav>

@@ -7,7 +7,6 @@ import NotFoundPage from "../pages/NotFoundPage";
 import RegisterPage from "../pages/RegisterPage";
 import BookingHistoryPage from "../pages/BookingHistoryPage";
 import RequireAuth from "../components/auth/RequireAuth";
-import ComingSoonPage from "../pages/ComingSoonPage";
 import BookingPage from "../pages/BookingPage";
 import ProfilePage from "../pages/ProfilePage";
 import MatchPage from "../pages/MatchPage";
@@ -49,16 +48,6 @@ function AppRoutes() {
           }
         />
         <Route path="/matches" element={<MatchPage />} />
-        <Route
-          path="/help"
-          element={
-            <ComingSoonPage
-              eyebrow="Hỗ trợ người dùng"
-              title="Trung tâm trợ giúp"
-              description="Bạn có thể tìm sân và đặt lịch ngay; nội dung hướng dẫn chi tiết sẽ được bổ sung sau."
-            />
-          }
-        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

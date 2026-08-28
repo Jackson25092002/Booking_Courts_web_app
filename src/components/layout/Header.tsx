@@ -78,14 +78,6 @@ function Header() {
           >
             Dành cho chủ sân
           </NavLink>
-          <NavLink
-            to="/help"
-            className={({ isActive }) =>
-              isActive ? "header__link header__link--active" : "header__link"
-            }
-          >
-            Trợ giúp
-          </NavLink>
         </nav>
 
         <div className="header__actions">

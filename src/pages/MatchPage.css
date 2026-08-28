@@ -165,10 +165,6 @@
 .match-map-marker.is-selected { background: #c41e1e; transform: rotate(-45deg) scale(1.12); }
 .match-map-marker b { transform: rotate(45deg); }
 
-.match-map__legend { position: absolute; right: 50%; bottom: 28px; z-index: 500; display: flex; padding: 10px 16px; gap: 18px; background: #fff; border-radius: 999px; box-shadow: 0 4px 15px rgb(0 0 0 / 16%); transform: translateX(50%); font-size: 12px; }
-.match-map__legend span:first-child { color: #0bae78; }
-.match-map__legend span:nth-child(2) { color: #376554; }
-.match-map__legend span:last-child { color: #c41e1e; }
 .leaflet-popup-content svg { vertical-align: -2px; }
 
 .match-map__style-picker {

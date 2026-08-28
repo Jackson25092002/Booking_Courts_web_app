@@ -80,7 +80,6 @@ function MatchPage() {
   const [level, setLevel] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mapStyle, setMapStyle] = useState<MapStyle>("street");
-  const [tileFailed, setTileFailed] = useState(false);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const activeTileProvider = MAP_TILE_PROVIDERS[mapStyle];
@@ -227,10 +226,6 @@ function MatchPage() {
               key={mapStyle}
               attribution={activeTileProvider.attribution}
               url={activeTileProvider.url}
-              eventHandlers={{
-                tileload: () => setTileFailed(false),
-                tileerror: () => setTileFailed(true),
-              }}
             />
             <ZoomControl position="topright" />
             {filteredMatches.map((match) => {
@@ -256,14 +251,13 @@ function MatchPage() {
           <label className="match-map__style-picker">
             <span>Nền bản đồ</span>
             <select value={mapStyle} onChange={(event) => {
-              setTileFailed(false);
               setMapStyle(event.target.value as MapStyle);
             }}>
               <option value="street">Đường phố</option>
               <option value="topographic">Địa hình</option>
             </select>
           </label>
-          {tileFailed && (
+          {/* {tileFailed && (
             <div className="match-map__error" role="status">
               <strong>Không tải được nền bản đồ</strong>
               <span>Hãy kiểm tra Internet, DNS, VPN hoặc tiện ích chặn nội dung.</span>
@@ -272,8 +266,7 @@ function MatchPage() {
                 setMapStyle((current) => current === "street" ? "topographic" : "street");
               }}>Thử lại</button>
             </div>
-          )}
-          <div className="match-map__legend"><span>● Nhiều kèo</span><span>● Ít kèo</span><span>● Đang chọn</span></div>
+          )} */}
         </aside>
       </section>
     </div>
