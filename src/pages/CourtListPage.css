@@ -18,6 +18,12 @@
   font-size: 14px;
 }
 
+.court-breadcrumb svg {
+  width: 16px;
+  height: 16px;
+  color: #66736d;
+}
+
 .court-breadcrumb a {
   color: #17211b;
   text-decoration: none;
@@ -95,6 +101,18 @@
   cursor: pointer;
 }
 
+.court-search-panel > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.court-search-panel > button svg {
+  width: 19px;
+  height: 19px;
+}
+
 .court-card__booking {
   display: grid;
   place-items: center;
@@ -146,8 +164,18 @@
 }
 
 .court-filters legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 14px;
   font-size: 15px;
+}
+
+.court-filters legend svg {
+  width: 17px;
+  height: 17px;
+  color: #087f59;
+  stroke-width: 1.8;
 }
 
 .court-filter-option {
@@ -180,22 +208,6 @@
   color: #66736d;
   font-size: 12px;
   line-height: 1.6;
-}
-
-.court-availability-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 0;
-  border-top: 1px solid #cbd9cf;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.court-availability-toggle input {
-  width: 36px;
-  height: 20px;
-  accent-color: #0fbb7f;
 }
 
 .court-filters__apply {
@@ -241,8 +253,15 @@
 }
 
 .court-results__view-controls button {
+  display: grid;
   width: 44px;
+  place-items: center;
   cursor: pointer;
+}
+
+.court-results__view-controls button svg {
+  width: 18px;
+  height: 18px;
 }
 
 .court-results__view-controls button.is-active {
@@ -283,34 +302,6 @@
   object-fit: cover;
 }
 
-.court-card__rating {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  padding: 6px 12px;
-  color: #f4ad00;
-  background: #ffffff;
-  border-radius: 7px;
-}
-
-.court-card__rating strong {
-  color: #17211b;
-}
-
-.court-card__image button {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 38px;
-  height: 38px;
-  color: #18241d;
-  background: #ffffff;
-  border: 0;
-  border-radius: 50%;
-  font-size: 24px;
-  cursor: pointer;
-}
-
 .court-card__body {
   padding: 18px;
 }
@@ -341,22 +332,17 @@
 
 .court-card__address {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  gap: 8px;
   margin: 12px 0;
   font-size: 12px;
 }
 
-.court-card__address span {
-  display: block;
+.court-card__address > svg {
   flex: 0 0 auto;
-  margin-right: 8px;
-  color: #00b878;
-}
-
-.court-card__address svg {
-  display: block;
   width: 15px;
   height: 15px;
+  color: #00b878;
 }
 
 .court-card__amenities {
@@ -390,6 +376,18 @@
 .court-card__body h3 {
   margin: 0 0 10px;
   font-size: 12px;
+}
+
+.court-card__hours-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.court-card__hours-heading svg {
+  width: 15px;
+  height: 15px;
+  color: #60766a;
 }
 
 .court-card__slots {
@@ -499,6 +497,7 @@
 }
 
 .court-pagination button {
+  display: grid;
   min-width: 38px;
   height: 38px;
   color: #2e3c34;
@@ -506,6 +505,12 @@
   border: 1px solid #b8cabc;
   border-radius: 8px;
   cursor: pointer;
+  place-items: center;
+}
+
+.court-pagination button svg {
+  width: 17px;
+  height: 17px;
 }
 
 .court-pagination button.is-active {

@@ -1,14 +1,22 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import courtImage from "../assets/home_page.jpg";
-import LocationPinIcon from "../components/icons/LocationPinIcon";
 import { getApiError } from "../services/api";
 import {
   getCourts,
   type Court,
   type CourtSort,
 } from "../services/courtService";
-import { Search,  } from "lucide-react";
+import {
+  Banknote,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  List,
+  Map,
+  MapPin,
+  Search,
+} from "lucide-react";
 import "./CourtListPage.css";
 
 const PAGE_SIZE = 4;
@@ -18,16 +26,12 @@ interface AppliedFilters {
   search: string;
   district: string;
   maxPrice: number;
-  minRating: number;
-  onlyAvailable: boolean;
 }
 
 const initialFilters: AppliedFilters = {
   search: "",
   district: "",
   maxPrice: MAX_PRICE,
-  minRating: 0,
-  onlyAvailable: false,
 };
 
 function CourtListPage() {
@@ -39,8 +43,6 @@ function CourtListPage() {
   const [search, setSearch] = useState(initialSearch);
   const [selectedDistrict, setSelectedDistrict] = useState(initialDistrict);
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
-  const [minRating, setMinRating] = useState(0);
-  const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<AppliedFilters>(() => ({
     ...initialFilters,
     search: initialSearch,
@@ -94,17 +96,7 @@ function CourtListPage() {
     };
   }, [appliedFilters, requestVersion, sortBy]);
 
-  const filteredCourts = useMemo(
-    () =>
-      courts.filter((court) => {
-        const matchesRating = court.averageRating >= appliedFilters.minRating;
-        const matchesAvailability =
-          !appliedFilters.onlyAvailable || court.fields.length > 0;
-
-        return matchesRating && matchesAvailability;
-      }),
-    [appliedFilters.minRating, appliedFilters.onlyAvailable, courts],
-  );
+  const filteredCourts = courts;
 
   const totalPages = Math.max(1, Math.ceil(filteredCourts.length / PAGE_SIZE));
   const visibleCourts = filteredCourts.slice(
@@ -119,8 +111,6 @@ function CourtListPage() {
       search: search.trim(),
       district: selectedDistrict,
       maxPrice,
-      minRating,
-      onlyAvailable,
     });
   }
 
@@ -132,8 +122,6 @@ function CourtListPage() {
     setSearch("");
     setSelectedDistrict("");
     setMaxPrice(MAX_PRICE);
-    setMinRating(0);
-    setOnlyAvailable(false);
     setPage(1);
     setAppliedFilters(initialFilters);
   }
@@ -148,7 +136,7 @@ function CourtListPage() {
       <div className="court-list-page__container">
         <nav className="court-breadcrumb" aria-label="Breadcrumb">
           <Link to="/">Trang chủ</Link>
-          <span aria-hidden="true">›</span>
+          <ChevronRight aria-hidden="true" />
           <strong>Danh sách sân</strong>
         </nav>
 
@@ -182,7 +170,10 @@ function CourtListPage() {
               <option value="3">3 giờ</option> 
             </select>
           </label>
-          <button type="submit"> <Search></Search> Tìm kiếm</button>
+          <button type="submit">
+            <Search aria-hidden="true" />
+            Tìm kiếm
+          </button>
         </form>
 
         <div className="court-results-layout">
@@ -193,7 +184,10 @@ function CourtListPage() {
             </div>
 
             <fieldset>
-              <legend>⌖&nbsp; Quận/Huyện</legend>
+              <legend>
+                <MapPin aria-hidden="true" />
+                Quận/Huyện
+              </legend>
               {districts.map((district) => (
                 <label key={district} className="court-filter-option">
                   <input
@@ -207,7 +201,10 @@ function CourtListPage() {
             </fieldset>
 
             <fieldset>
-              <legend>▣&nbsp; Khoảng giá (VNĐ/giờ)</legend>
+              <legend>
+                <Banknote aria-hidden="true" />
+                Khoảng giá (VNĐ/giờ)
+              </legend>
               <input
                 className="court-price-range"
                 type="range"
@@ -223,38 +220,12 @@ function CourtListPage() {
               </div>
             </fieldset>
 
-            <fieldset>
-              <legend>☆&nbsp; Đánh giá</legend>
-              {[4, 3, 0].map((rating) => (
-                <label key={rating} className="court-filter-option">
-                  <input
-                    type="radio"
-                    name="rating"
-                    checked={minRating === rating}
-                    onChange={() => setMinRating(rating)}
-                  />
-                  <span>
-                    {rating === 0 ? "Tất cả đánh giá" : `${"★".repeat(rating)} trở lên`}
-                  </span>
-                </label>
-              ))}
-            </fieldset>
-
             {/* <fieldset>
               <legend>⌁&nbsp; Sân con</legend>
               <span className="court-filter-note">
                 Thông tin sân con được lấy trực tiếp từ hệ thống.
               </span>
             </fieldset> */}
-
-            <label className="court-availability-toggle">
-              <span>Chỉ hiện sân đang hoạt động</span>
-              <input
-                type="checkbox"
-                checked={onlyAvailable}
-                onChange={(event) => setOnlyAvailable(event.target.checked)}
-              />
-            </label>
 
             <button className="court-filters__apply" type="button" onClick={() => applyFilters()}>
               Áp dụng bộ lọc
@@ -270,15 +241,18 @@ function CourtListPage() {
                 <p>Dữ liệu sân được cập nhật từ hệ thống</p>
               </div>
               <div className="court-results__view-controls">
-                <button type="button" className="is-active" aria-label="Xem dạng danh sách">☷</button>
-                <button type="button" aria-label="Xem trên bản đồ">♧</button>
+                <button type="button" className="is-active" aria-label="Xem dạng danh sách">
+                  <List aria-hidden="true" />
+                </button>
+                <button type="button" aria-label="Xem trên bản đồ">
+                  <Map aria-hidden="true" />
+                </button>
                 <select
                   value={sortBy}
                   onChange={(event) => changeSort(event.target.value as CourtSort)}
                   aria-label="Sắp xếp sân"
                 >
                   <option value="newest">Mới nhất</option>
-                  <option value="rating">Đánh giá cao</option>
                   <option value="price-asc">Giá thấp nhất</option>
                   <option value="price-desc">Giá cao nhất</option>
                 </select>
@@ -306,10 +280,6 @@ function CourtListPage() {
                         src={court.imageUrl || courtImage}
                         alt={`Không gian ${court.name}`}
                       />
-                      <span className="court-card__rating">
-                        ★ <strong>{court.averageRating || "Mới"}</strong>
-                      </span>
-                      <button type="button" aria-label={`Yêu thích ${court.name}`}>♡</button>
                     </div>
 
                     <div className="court-card__body">
@@ -318,7 +288,7 @@ function CourtListPage() {
                         <p><strong>{Math.round(court.pricePerHour / 1000)}k</strong>/giờ</p>
                       </div>
                       <p className="court-card__address">
-                        <span aria-hidden="true"><LocationPinIcon /></span>
+                        <MapPin aria-hidden="true" />
                         {court.address}
                       </p>
 
@@ -327,7 +297,10 @@ function CourtListPage() {
                         <small>{court.fields.length} sân con</small>
                       </div>
 
-                      <h3>Giờ hoạt động:</h3>
+                      <h3 className="court-card__hours-heading">
+                        <Clock3 aria-hidden="true" />
+                        Giờ hoạt động:
+                      </h3>
                       <div className="court-card__slots">
                         <span>{court.openTime}</span>
                         <span>{court.closeTime}</span>
@@ -364,7 +337,7 @@ function CourtListPage() {
                   disabled={page === 1}
                   onClick={() => setPage((current) => Math.max(1, current - 1))}
                 >
-                  ‹
+                  <ChevronLeft aria-hidden="true" />
                 </button>
                 {Array.from({ length: totalPages }, (_, index) => index + 1).map(
                   (pageNumber) => (
@@ -385,7 +358,7 @@ function CourtListPage() {
                   disabled={page === totalPages}
                   onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                 >
-                  ›
+                  <ChevronRight aria-hidden="true" />
                 </button>
               </nav>
             )}
