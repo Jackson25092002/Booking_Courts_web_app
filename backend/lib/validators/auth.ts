@@ -17,10 +17,7 @@ export const registerSchema = z.object({
     .toLowerCase()
     .email("Email không hợp lệ")
     .max(255, "Email không được vượt quá 255 ký tự"),
-  phone: z.preprocess(
-    (value) => (value === "" || value === null ? undefined : value),
-    phoneSchema.optional(),
-  ),
+  phone: phoneSchema,
   password: z
     .string()
     .min(8, "Mật khẩu phải có ít nhất 8 ký tự")

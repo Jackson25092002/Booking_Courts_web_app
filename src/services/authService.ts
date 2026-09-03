@@ -35,7 +35,7 @@ export interface UpdateProfileInput {
 export interface RegisterInput {
   fullName: string;
   email: string;
-  phone?: string;
+  phone: string;
   password: string;
 }
 

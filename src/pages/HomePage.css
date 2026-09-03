@@ -242,23 +242,6 @@
   font-weight: 700;
 }
 
-.recommended-court-card__image button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: grid;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  place-items: center;
-  color: #1f2937;
-  background: rgba(255, 255, 255, 0.94);
-  border: 0;
-  border-radius: 50%;
-  font-size: 21px;
-  cursor: pointer;
-}
-
 .recommended-court-card__body {
   padding: 16px;
 }
@@ -305,21 +288,6 @@
   align-items: center;
   gap: 4px;
   line-height: 1;
-}
-
-.recommended-court-card__meta svg {
-  width: 15px;
-  height: 15px;
-  flex: 0 0 15px;
-  display: block;
-}
-
-.recommended-court-card__meta span:first-child {
-  color: #f59e0b;
-}
-
-.recommended-court-card__meta strong {
-  color: #111827;
 }
 
 .recommended-court-card__hours {

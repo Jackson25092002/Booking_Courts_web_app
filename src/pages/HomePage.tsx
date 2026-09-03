@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import courtImage from "../assets/home_page.jpg";
 import { getApiError } from "../services/api";
 import { getCourts, type Court } from "../services/courtService";
-import { Clock3, HeartIcon, MapPin, Star } from "lucide-react";
+import { Clock3, MapPin } from "lucide-react";
 import "./HomePage.css";
 
 function HomePage() {
@@ -150,9 +150,6 @@ function HomePage() {
                 <div className="recommended-court-card__image">
                   <img src={court.imageUrl || courtImage} alt={`Không gian ${court.name}`} />
                   <span>{court.fields.length > 0 ? "Đang hoạt động" : "Tạm ngưng"}</span>
-                  <button type="button" aria-label={`Yêu thích ${court.name}`}>
-                    <HeartIcon />
-                  </button>
                 </div>
 
                 <div className="recommended-court-card__body">
@@ -160,12 +157,7 @@ function HomePage() {
                   <p className="recommended-court-card__address"><MapPin size={20} aria-hidden="true" /> {court.address}</p>
 
                   <div className="recommended-court-card__meta">
-                    <span className="recommended-court-card__rating">
-                      <Star size={16} aria-hidden="true"/> 
-                      <strong>{court.averageRating || "Mới"}</strong>
-                    </span>
-                    <span>{court.reviewCount} đánh giá</span>
-                    <span>{court.fields.length} Sân </span>
+                    <span>{court.fields.length} sân</span>
                   </div>
 
                   <p className="recommended-court-card__hours">

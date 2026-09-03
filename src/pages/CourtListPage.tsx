@@ -8,7 +8,6 @@ import {
   type CourtSort,
 } from "../services/courtService";
 import {
-  Banknote,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -200,7 +199,7 @@ function CourtListPage() {
               ))}
             </fieldset>
 
-            <fieldset>
+            {/* <fieldset>
               <legend>
                 <Banknote aria-hidden="true" />
                 Khoảng giá (VNĐ/giờ)
@@ -218,7 +217,7 @@ function CourtListPage() {
                 <span>50k</span>
                 <strong>{Math.round(maxPrice / 1000)}k</strong>
               </div>
-            </fieldset>
+            </fieldset> */}
 
             {/* <fieldset>
               <legend>⌁&nbsp; Sân con</legend>

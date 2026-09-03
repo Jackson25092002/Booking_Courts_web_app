@@ -2,6 +2,7 @@ import type { MouseEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import logoLenKeo from "../../assets/logo_len_keo.png";
+import { Mail, MapPin, Phone } from "lucide-react";
 import "./Footer.css";
 
 function Footer() {
@@ -52,15 +53,15 @@ function Footer() {
         <section className="footer__column footer__contact">
           <h2>Liên hệ</h2>
           <a href="tel:123456789">
-            <span aria-hidden="true">☎</span>
-            123456789
+            <Phone aria-hidden="true" />
+            0123456789
           </a>
           <a href="mailto:hotro@lenkeothoi.vn">
-            <span aria-hidden="true">✉</span>
+            <Mail aria-hidden="true" />
             hotro@lenkeothoi.vn
           </a>
           <p>
-            <span aria-hidden="true">⌖</span>
+            <MapPin aria-hidden="true" />
             Thành phố Hồ Chí Minh
           </p>
         </section>

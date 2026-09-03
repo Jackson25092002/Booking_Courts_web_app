@@ -286,6 +286,17 @@
   white-space: nowrap;
 }
 
+.auth-divider a {
+  color: #007448;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.auth-divider a:hover {
+  color: #005f3b;
+}
+
 .auth-socials {
   display: grid;
   gap: 14px;

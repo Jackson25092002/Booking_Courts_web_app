@@ -4,6 +4,7 @@ import AuthIcon from "../components/auth/AuthIcon";
 import { getApiError } from "../services/api";
 import { register } from "../services/authService";
 import logoLenKeo from "../assets/logo_len_keo.png";
+import { Phone } from "lucide-react";
 import "./AuthPage.css";
 
 function RegisterPage() {
@@ -30,6 +31,7 @@ function RegisterPage() {
       await register({
         fullName: String(formData.get("fullName") ?? ""),
         email: String(formData.get("email") ?? ""),
+        phone: String(formData.get("phone") ?? ""),
         password,
       });
       navigate("/login", {
@@ -59,6 +61,20 @@ function RegisterPage() {
 
         <form className="auth-form auth-form--register" onSubmit={handleSubmit}>
           <div className="auth-input">
+            <Phone aria-hidden="true" />
+            <input
+              name="phone"
+              type="tel"
+              placeholder="Số điện thoại"
+              autoComplete="tel"
+              inputMode="tel"
+              pattern="(?:\+84|0)[0-9]{9}"
+              title="Nhập số điện thoại Việt Nam gồm 10 số, bắt đầu bằng 0"
+              aria-label="Số điện thoại"
+              required
+            />
+          </div>
+          <div className="auth-input">
             <AuthIcon name="user" />
             <input
               name="fullName"
@@ -80,6 +96,7 @@ function RegisterPage() {
               required
             />
           </div>
+          
           <div className="auth-input">
             <AuthIcon name="lock" />
             <input
@@ -127,7 +144,7 @@ function RegisterPage() {
           </button>
         </form>
 
-        <div className="auth-divider"><span>Hoặc tiếp tục với</span></div>
+        {/* <div className="auth-divider"><span>Hoặc tiếp tục với</span></div>
 
         <div className="auth-socials">
           <button type="button" className="auth-social auth-social--facebook">
@@ -138,12 +155,12 @@ function RegisterPage() {
             <strong>G</strong>
             Tiếp tục với Google
           </button>
-        </div>
+        </div> */}
 
-        <p className="auth-card__terms">
+        {/* <p className="auth-card__terms">
           Bằng cách đăng ký, bạn đồng ý với <Link to="/terms">Điều khoản</Link> và{" "}
           <Link to="/privacy">Chính sách</Link> của chúng tôi.
-        </p>
+        </p> */}
       </section>
     </main>
   );
