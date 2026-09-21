@@ -230,15 +230,78 @@
   grid-column: 1 / -1;
 }
 
-.profile-avatar-input {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.profile-avatar-upload {
+  display: grid;
+  gap: 9px;
 }
 
-.profile-avatar-input svg {
-  width: 20px;
-  color: #087a52;
+.profile-avatar-upload > span {
+  color: #65736a;
+  font-size: 14px;
+}
+
+.profile-avatar-upload__content {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px;
+  background: #f7fbf8;
+  border: 1px dashed #a9c4b3;
+  border-radius: 11px;
+}
+
+.profile-avatar--preview {
+  width: 72px;
+  height: 72px;
+  margin: 0;
+  flex: 0 0 auto;
+  border-width: 3px;
+  font-size: 20px;
+}
+
+.profile-avatar-upload__button {
+  display: inline-flex;
+  min-height: 40px;
+  padding: 0 14px;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  background: #087a52;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-avatar-upload__button:hover {
+  background: #066943;
+}
+
+.profile-avatar-upload__button.is-disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.profile-avatar-upload__button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.profile-avatar-upload__button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.profile-avatar-upload__content p {
+  margin: 8px 0 0;
+  color: #6a776f;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .profile-form__error,
@@ -483,5 +546,10 @@
   .profile-tip {
     align-items: flex-start;
     flex-wrap: wrap;
+  }
+
+  .profile-avatar-upload__content {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

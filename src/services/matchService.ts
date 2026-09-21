@@ -27,12 +27,40 @@ export interface MatchItem {
   court: MatchCourt | null;
 }
 
-export async function getMatches() {
+export interface MatchFilters {
+  search?: string;
+  district?: string;
+  level?: string;
+  date?: string;
+  period?: "all" | "weekend";
+  sort?: "soonest" | "newest";
+}
+
+export interface CreateMatchInput {
+  courtId: string;
+  title: string;
+  description?: string;
+  level: string;
+  startsAt: string;
+  maxPlayers: number;
+  currentPlayers: number;
+}
+
+export async function createMatch(input: CreateMatchInput) {
+  const response = await api.post<{
+    success: boolean;
+    message: string;
+    data: { id: string; title: string; startsAt: string; status: MatchItem["status"] };
+  }>("/api/matches", input);
+  return response.data;
+}
+
+export async function getMatches(params: MatchFilters = {}, signal?: AbortSignal) {
   const response = await api.get<{
     success: boolean;
     data: MatchItem[];
-    meta: { total: number };
-  }>("/api/matches");
+    meta: { total: number; districts: string[]; levels: string[] };
+  }>("/api/matches", { params, signal });
 
   return response.data;
 }

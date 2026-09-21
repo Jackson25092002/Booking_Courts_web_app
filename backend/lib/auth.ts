@@ -1,9 +1,11 @@
 import bcrypt from "bcryptjs";
+import { createHash } from "node:crypto";
 import { jwtVerify, SignJWT } from "jose";
 import type { UserRole } from "@/src/generated/prisma/client";
 
 const PASSWORD_SALT_ROUNDS = 12;
 const ACCESS_TOKEN_EXPIRES_IN_SECONDS = 60 * 60 * 24 * 7;
+const PASSWORD_RESET_TOKEN_EXPIRES_IN_SECONDS = 60 * 15;
 
 function getJwtSecret() {
   const secret = process.env.JWT_SECRET;
@@ -21,6 +23,10 @@ export function hashPassword(password: string) {
 
 export function verifyPassword(password: string, passwordHash: string) {
   return bcrypt.compare(password, passwordHash);
+}
+
+function passwordFingerprint(passwordHash: string) {
+  return createHash("sha256").update(passwordHash).digest("hex");
 }
 
 export interface AccessTokenPayload {
@@ -88,4 +94,56 @@ export async function createAccessToken({
     token,
     expiresIn: ACCESS_TOKEN_EXPIRES_IN_SECONDS,
   };
+}
+
+export async function createPasswordResetToken({
+  userId,
+  email,
+  passwordHash,
+}: {
+  userId: string;
+  email: string;
+  passwordHash: string;
+}) {
+  return new SignJWT({
+    purpose: "password-reset",
+    email,
+    passwordFingerprint: passwordFingerprint(passwordHash),
+  })
+    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
+    .setSubject(userId)
+    .setAudience("password-reset")
+    .setIssuedAt()
+    .setExpirationTime(`${PASSWORD_RESET_TOKEN_EXPIRES_IN_SECONDS}s`)
+    .sign(getJwtSecret());
+}
+
+export async function verifyPasswordResetToken(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, getJwtSecret(), {
+      algorithms: ["HS256"],
+      audience: "password-reset",
+    });
+
+    if (
+      payload.purpose !== "password-reset" ||
+      !payload.sub ||
+      typeof payload.email !== "string" ||
+      typeof payload.passwordFingerprint !== "string"
+    ) {
+      return null;
+    }
+
+    return {
+      userId: payload.sub,
+      email: payload.email,
+      passwordFingerprint: payload.passwordFingerprint,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function isPasswordResetTokenCurrent(passwordHash: string, fingerprint: string) {
+  return passwordFingerprint(passwordHash) === fingerprint;
 }

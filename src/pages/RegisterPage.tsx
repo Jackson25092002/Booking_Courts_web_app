@@ -4,7 +4,7 @@ import AuthIcon from "../components/auth/AuthIcon";
 import { getApiError } from "../services/api";
 import { register } from "../services/authService";
 import logoLenKeo from "../assets/logo_len_keo.png";
-import { Phone } from "lucide-react";
+import { Eye, EyeOff, Phone } from "lucide-react";
 import "./AuthPage.css";
 
 function RegisterPage() {
@@ -113,8 +113,9 @@ function RegisterPage() {
               className="auth-input__visibility"
               onClick={() => setShowPassword((current) => !current)}
               aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+              aria-pressed={showPassword}
             >
-              <AuthIcon name={showPassword ? "eye" : "eyeOff"} />
+              {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
             </button>
           </div>
           <div className="auth-input">
@@ -133,8 +134,9 @@ function RegisterPage() {
               className="auth-input__visibility"
               onClick={() => setShowConfirmation((current) => !current)}
               aria-label={showConfirmation ? "Ẩn mật khẩu xác nhận" : "Hiện mật khẩu xác nhận"}
+              aria-pressed={showConfirmation}
             >
-              <AuthIcon name={showConfirmation ? "eye" : "eyeOff"} />
+              {showConfirmation ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
             </button>
           </div>
 

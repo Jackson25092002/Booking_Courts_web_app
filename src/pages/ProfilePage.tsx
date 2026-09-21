@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   BadgeCheck,
@@ -13,18 +13,19 @@ import {
   Save,
   Star,
   Target,
-  WalletCards,
   X,
 } from "lucide-react";
 import { useAuth } from "../contexts/useAuth";
 import { getApiError } from "../services/api";
 import {
   getCurrentUser,
+  uploadAvatar,
   updateCurrentUser,
   type AuthUser,
   type ProfileStats,
   type UpdateProfileInput,
 } from "../services/authService";
+import { prepareAvatarImage } from "../utils/avatarImage";
 import "./ProfilePage.css";
 
 const skillLabels = {
@@ -88,6 +89,7 @@ function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -155,6 +157,31 @@ function ProfilePage() {
     }
   }
 
+  async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    setError("");
+    setSuccessMessage("");
+    try {
+      const preparedImage = await prepareAvatarImage(file);
+      const response = await uploadAvatar(preparedImage);
+      setProfile(response.data.user);
+      setForm(createFormState(response.data.user));
+      updateUser(response.data.user);
+      setSuccessMessage(response.message);
+    } catch (uploadError) {
+      const apiError = getApiError(uploadError);
+      setError(apiError.status
+        ? apiError.message
+        : uploadError instanceof Error ? uploadError.message : apiError.message);
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  }
+
   function handleSignOut() {
     signOut();
     navigate("/login", { replace: true });
@@ -199,7 +226,6 @@ function ProfilePage() {
             <a className="is-active" href="#personal-info"><CircleUserRound />Thông tin cá nhân</a>
             <Link to="/history"><History />Lịch sử đặt sân</Link>
             <Link to="/matches"><Target />Trình độ &amp; Kèo</Link>
-            <span className="is-disabled" title="Tính năng đang phát triển"><WalletCards />Ví của tôi</span>
             <button type="button" onClick={handleSignOut}><LogOut />Đăng xuất</button>
           </nav>
         </aside>
@@ -257,17 +283,32 @@ function ProfilePage() {
                   ) : <strong>{profile.playDistrict || "Chưa cập nhật"}</strong>}
                 </label>
                 {isEditing && (
-                  <label className="profile-fields__wide">
-                    <span>URL ảnh đại diện</span>
-                    <div className="profile-avatar-input"><Camera /><input type="url" value={form.avatarUrl ?? ""} onChange={(event) => updateField("avatarUrl", event.target.value || null)} placeholder="https://..." /></div>
-                  </label>
+                  <div className="profile-fields__wide profile-avatar-upload">
+                    <span>Ảnh đại diện</span>
+                    <div className="profile-avatar-upload__content">
+                      <div className="profile-avatar profile-avatar--preview">
+                        {profile.avatarUrl
+                          ? <img src={profile.avatarUrl} alt="Xem trước ảnh đại diện" />
+                          : <span>{getInitials(profile.fullName)}</span>}
+                      </div>
+                      <div>
+                        <label className={`profile-avatar-upload__button${isUploadingAvatar ? " is-disabled" : ""}`}>
+                          <Camera aria-hidden="true" />
+                          {isUploadingAvatar ? "Đang xử lý ảnh..." : "Chọn ảnh từ thiết bị"}
+                          <input type="file" accept="image/jpeg,image/png,image/webp"
+                            disabled={isUploadingAvatar} onChange={handleAvatarChange} />
+                        </label>
+                        <p>JPG, PNG hoặc WebP. Ảnh gốc tối đa 100 MB và sẽ được tự động thu nhỏ.</p>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
               {error && <p className="profile-form__error" role="alert">{error}</p>}
               {successMessage && <p className="profile-form__success" role="status">{successMessage}</p>}
               {isEditing && (
-                <button className="profile-form__save" type="submit" disabled={isSaving}>
+                <button className="profile-form__save" type="submit" disabled={isSaving || isUploadingAvatar}>
                   <Save />{isSaving ? "Đang lưu..." : "Lưu thông tin"}
                 </button>
               )}

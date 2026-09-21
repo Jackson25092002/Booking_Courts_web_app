@@ -88,3 +88,30 @@ export async function updateCurrentUser(input: UpdateProfileInput) {
   >("/api/auth/me", input);
   return response.data;
 }
+
+export async function requestPasswordReset(email: string) {
+  const response = await api.post<Omit<ApiResponse<never>, "data">>(
+    "/api/auth/forgot-password",
+    { email },
+  );
+  return response.data;
+}
+
+export async function resetPassword(token: string, password: string) {
+  const response = await api.post<Omit<ApiResponse<never>, "data">>(
+    "/api/auth/reset-password",
+    { token, password },
+  );
+  return response.data;
+}
+
+export async function uploadAvatar(file: Blob) {
+  const formData = new FormData();
+  formData.append("avatar", file, "avatar.webp");
+  const response = await api.post<ApiResponse<{ user: AuthUser }>>(
+    "/api/auth/avatar",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return response.data;
+}

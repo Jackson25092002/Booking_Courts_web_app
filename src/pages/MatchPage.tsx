@@ -1,21 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState, type FormEvent } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
-  CalendarDays,
+  Bookmark,
+  CircleCheck,
   Clock3,
   Filter,
   MapPin,
   Search,
+  Share2,
   Users,
   WalletCards,
   Zap,
 } from "lucide-react";
 import L from "leaflet";
-import { MapContainer, Marker, Popup, TileLayer, ZoomControl } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useAuth } from "../contexts/useAuth";
 import { getApiError } from "../services/api";
-import { getMatches, type MatchItem } from "../services/matchService";
+import { getMatches, type MatchItem, type MatchFilters } from "../services/matchService";
 import "./MatchPage.css";
 
 const mapCenter: [number, number] = [10.79, 106.67];
@@ -43,6 +44,7 @@ const MAP_TILE_PROVIDERS: Record<MapStyle, { url: string; attribution: string }>
 
 function formatMatchDate(value: string) {
   return new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
     weekday: "short",
     day: "2-digit",
     month: "2-digit",
@@ -51,6 +53,7 @@ function formatMatchDate(value: string) {
 
 function formatMatchTime(value: string) {
   return new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -71,26 +74,57 @@ function createMarkerIcon(isSelected: boolean, remaining: number) {
   });
 }
 
+function MatchMapBounds({ matches }: { matches: MatchItem[] }) {
+  const map = useMap();
+  useEffect(() => {
+    const points = matches.flatMap((match): [number, number][] =>
+      match.court?.latitude != null && match.court.longitude != null
+        ? [[match.court.latitude, match.court.longitude]] : []);
+    if (points.length) map.fitBounds(points, { padding: [40, 40], maxZoom: 14 });
+    else map.setView(mapCenter, 12);
+  }, [map, matches]);
+  return null;
+}
+
 function MatchPage() {
+  const location = useLocation();
+  const createdMatchId = (location.state as { createdMatchId?: string } | null)?.createdMatchId;
   const [matches, setMatches] = useState<MatchItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [district, setDistrict] = useState("");
   const [level, setLevel] = useState("");
+  const [date, setDate] = useState("");
+  const [applied, setApplied] = useState<MatchFilters>({ sort: "soonest" });
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [levels, setLevels] = useState<string[]>([]);
+  const [retry, setRetry] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [savedMatchIds, setSavedMatchIds] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("savedMatchIds") ?? "[]");
+      return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === "string") : [];
+    } catch {
+      return [];
+    }
+  });
+  const [actionMessage, setActionMessage] = useState("");
   const [mapStyle, setMapStyle] = useState<MapStyle>("street");
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const activeTileProvider = MAP_TILE_PROVIDERS[mapStyle];
 
   useEffect(() => {
     let ignore = false;
-
-    getMatches()
+    const controller = new AbortController();
+    setIsLoading(true);
+    setError("");
+    setMatches([]);
+    getMatches(applied, controller.signal)
       .then((response) => {
         if (ignore) return;
         setMatches(response.data);
+        setDistricts(response.meta.districts);
+        setLevels(response.meta.levels);
         setSelectedId(response.data[0]?.id ?? null);
       })
       .catch((requestError) => {
@@ -100,85 +134,114 @@ function MatchPage() {
         if (!ignore) setIsLoading(false);
       });
 
-    return () => { ignore = true; };
-  }, []);
+    return () => { ignore = true; controller.abort(); };
+  }, [applied, retry]);
 
-  const districts = useMemo(
-    () => [...new Set(matches.map((match) => match.court?.district).filter(Boolean))] as string[],
-    [matches],
-  );
+  useEffect(() => {
+    if (!location.hash.startsWith("#match-")) return;
+    const id = location.hash.slice("#match-".length);
+    if (!matches.some((match) => match.id === id)) return;
+    setSelectedId(id);
+    requestAnimationFrame(() => document.getElementById(`match-${id}`)?.scrollIntoView({ block: "nearest" }));
+  }, [location.hash, matches]);
 
-  const levels = useMemo(
-    () => [...new Set(matches.map((match) => match.level))],
-    [matches],
-  );
+  useEffect(() => {
+    if (!actionMessage) return;
+    const timeout = window.setTimeout(() => setActionMessage(""), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [actionMessage]);
 
-  const filteredMatches = useMemo(() => {
-    const keyword = search.trim().toLocaleLowerCase("vi");
-    return matches.filter((match) => {
-      const haystack = `${match.title} ${match.court?.name ?? ""} ${match.court?.address ?? ""}`.toLocaleLowerCase("vi");
-      return (!keyword || haystack.includes(keyword))
-        && (!district || match.court?.district === district)
-        && (!level || match.level === level);
-    });
-  }, [district, level, matches, search]);
+  const filteredMatches = matches;
 
-  function handleJoin(match: MatchItem) {
-    if (!isAuthenticated) {
-      navigate("/login", {
-        state: {
-          from: "/matches",
-          message: "Vui lòng đăng nhập để tham gia kèo cầu lông.",
-        },
-      });
-      return;
+  function applyFilters(event?: FormEvent, period: MatchFilters["period"] = date ? "all" : applied.period) {
+    event?.preventDefault();
+    setApplied({ search: search.trim() || undefined, district: district || undefined,
+      level: level || undefined, date: period === "weekend" ? undefined : date || undefined,
+      period, sort: applied.sort });
+  }
+
+  function resetFilters() {
+    setSearch(""); setDistrict(""); setLevel(""); setDate("");
+    setApplied({ sort: "soonest" });
+  }
+
+  function toggleSavedMatch(id: string) {
+    const next = savedMatchIds.includes(id)
+      ? savedMatchIds.filter((savedId) => savedId !== id)
+      : [...savedMatchIds, id];
+    try {
+      window.localStorage.setItem("savedMatchIds", JSON.stringify(next));
+      setSavedMatchIds(next);
+      setActionMessage(savedMatchIds.includes(id) ? "Đã bỏ lưu kèo." : "Đã lưu kèo trên thiết bị này.");
+    } catch {
+      setActionMessage("Không thể lưu kèo trên thiết bị này.");
     }
+  }
 
-    if (match.court) navigate(`/courts/${match.court.id}`);
+  async function shareMatch(id: string) {
+    const url = `${window.location.origin}/matches#match-${id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setActionMessage("Đã sao chép liên kết kèo.");
+    } catch {
+      setActionMessage("Không thể sao chép liên kết. Hãy kiểm tra quyền truy cập clipboard.");
+    }
   }
 
   return (
     <div className="match-page">
-      <section className="match-search-panel" aria-label="Tìm kiếm kèo">
+      <form className="match-search-panel" aria-label="Tìm kiếm kèo" onSubmit={applyFilters}>
         <label className="match-filter-field">
           <MapPin aria-hidden="true" />
-          <select value={district} onChange={(event) => setDistrict(event.target.value)}>
+          <select aria-label="Quận/Huyện" value={district} onChange={(event) => setDistrict(event.target.value)}>
             <option value="">Chọn khu vực (Quận/Huyện)</option>
             {districts.map((item) => <option key={item}>{item}</option>)}
           </select>
         </label>
         <label className="match-filter-field">
           <Search aria-hidden="true" />
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tên sân, địa chỉ hoặc tên kèo..." />
+          <input aria-label="Tên kèo, sân hoặc địa chỉ" maxLength={100} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tên sân, địa chỉ hoặc tên kèo..." />
         </label>
         <label className="match-filter-field">
           <Filter aria-hidden="true" />
-          <select value={level} onChange={(event) => setLevel(event.target.value)}>
+          <select aria-label="Trình độ" value={level} onChange={(event) => setLevel(event.target.value)}>
             <option value="">Tất cả trình độ</option>
             {levels.map((item) => <option key={item}>{item}</option>)}
           </select>
         </label>
-        <button type="button"><Search />Tìm kèo</button>
+        <button type="submit"><Search aria-hidden="true" />Tìm kèo</button>
 
         <div className="match-quick-filters">
           <span><Filter />Bộ lọc</span>
-          <button className="is-active" type="button">● Đang mở</button>
-          <button type="button">Cuối tuần</button>
-          <button type="button">Khách vãng lai</button>
-          <button type="button">Ghép cặp</button>
+          <button className={applied.period !== "weekend" && !applied.date ? "is-active" : ""} type="button"
+            onClick={() => { setDate(""); setApplied({ ...applied, date: undefined, period: "all" }); }}>Đang mở</button>
+          <button className={applied.period === "weekend" ? "is-active" : ""} aria-pressed={applied.period === "weekend"} type="button"
+            onClick={() => { setDate(""); applyFilters(undefined, applied.period === "weekend" ? "all" : "weekend"); }}>Cuối tuần</button>
+          <label className="match-date-filter">Ngày chơi
+            <input type="date" aria-label="Ngày chơi" value={date}
+              onChange={(event) => { setDate(event.target.value); }} />
+          </label>
+          <button type="button" onClick={resetFilters}>Xóa bộ lọc</button>
         </div>
-      </section>
+      </form>
+
+      {createdMatchId && <p className="match-created-notice" role="status">Đăng kèo thành công. Bài đăng đã xuất hiện trong danh sách.</p>}
+      {actionMessage && <p className="match-action-notice" role="status">{actionMessage}</p>}
 
       <section className="match-workspace">
         <div className="match-list-column">
           <header className="match-list-header">
             <h1>Kèo đang mở <span>({filteredMatches.length})</span></h1>
-            <select aria-label="Sắp xếp"><option>Sớm nhất</option><option>Mới nhất</option></select>
+            <div className="match-list-header__actions"><select aria-label="Sắp xếp" value={applied.sort ?? "soonest"}
+              onChange={(event) => setApplied({ ...applied, sort: event.target.value as MatchFilters["sort"] })}>
+              <option value="soonest">Sớm nhất</option><option value="newest">Mới nhất</option>
+            </select>
+            <Link to="/matches/new" className="match-create-link">+ Đăng kèo</Link></div>
           </header>
 
           <div className="match-list">
-            {isLoading && <p className="match-state">Đang tải danh sách kèo...</p>}
-            {error && <p className="match-state is-error" role="alert">{error}</p>}
+            {isLoading && <p className="match-state" role="status">Đang tải danh sách kèo...</p>}
+            {error && <div className="match-state is-error" role="alert"><p>{error}</p><button onClick={() => setRetry((value) => value + 1)}>Thử lại</button></div>}
             {!isLoading && !error && filteredMatches.length === 0 && (
               <p className="match-state">Không tìm thấy kèo phù hợp với bộ lọc.</p>
             )}
@@ -189,21 +252,27 @@ function MatchPage() {
                 <article
                   className={`match-card${selectedId === match.id ? " is-selected" : ""}`}
                   key={match.id}
+                  id={`match-${match.id}`}
+                  tabIndex={0}
+                  aria-label={match.title}
+                  onFocus={() => setSelectedId(match.id)}
+                  onClick={() => setSelectedId(match.id)}
                   onMouseEnter={() => setSelectedId(match.id)}
                 >
                   <div className="match-card__badges">
-                    <span><Zap />Khách vãng lai</span>
-                    <span className="is-open">✓ Còn {remaining} chỗ</span>
+                    <span className="match-card__type"><Zap aria-hidden="true" /> Khách vãng lai</span>
+                    <span className="is-open"><CircleCheck aria-hidden="true" /> Còn {remaining} chỗ</span>
                     <time><b>{formatMatchDate(match.startsAt)}</b>{formatMatchTime(match.startsAt)}</time>
                   </div>
                   <h2>{match.title}</h2>
-                  <p><CalendarDays />{match.court?.name ?? "Địa điểm sẽ cập nhật"}</p>
-                  <p><MapPin />{match.court?.address ?? "Chưa có địa chỉ"}</p>
+                  <p className="match-card__venue">{match.court?.name ?? "Địa điểm sẽ cập nhật"}</p>
+                  <p className="match-card__location"><MapPin aria-hidden="true" />{match.court?.district ?? "Chưa có khu vực"}</p>
                   <div className="match-card__meta">
                     <span>Trình độ: {match.level}</span>
-                    <span><Users />Cần {remaining} (Đã có {match.currentPlayers})</span>
-                    <span><WalletCards />{match.court ? `${Math.round(match.court.pricePerHour / 1000)}k/người` : "Thỏa thuận"}</span>
+                    <span><Users aria-hidden="true" /> Cần {remaining} · Đã có {match.currentPlayers}</span>
+                    <span><WalletCards aria-hidden="true" /> {match.court ? `Sân ${match.court.pricePerHour.toLocaleString("vi-VN")}đ/giờ` : "Giá sân chưa cập nhật"}</span>
                   </div>
+                  {match.description && <p className="match-card__description" title={match.description}>{match.description}</p>}
                   <footer>
                     <div className="match-host">
                       {match.organizer.avatarUrl
@@ -211,7 +280,17 @@ function MatchPage() {
                         : <span>{getInitials(match.organizer.fullName)}</span>}
                       <div><strong>{match.organizer.fullName}</strong><small>Người tổ chức</small></div>
                     </div>
-                    <button type="button" onClick={() => handleJoin(match)}>Tham gia ngay</button>
+                    <div className="match-card__actions">
+                      <button type="button" className={savedMatchIds.includes(match.id) ? "is-saved" : ""}
+                        aria-label={savedMatchIds.includes(match.id) ? "Bỏ lưu kèo" : "Lưu kèo"}
+                        aria-pressed={savedMatchIds.includes(match.id)} onClick={() => toggleSavedMatch(match.id)}>
+                        <Bookmark aria-hidden="true" />
+                      </button>
+                      <button type="button" aria-label="Sao chép liên kết kèo" onClick={() => void shareMatch(match.id)}>
+                        <Share2 aria-hidden="true" />
+                      </button>
+                      {match.court && <Link className="match-view-court" to={`/courts/${match.court.id}`}>Xem sân</Link>}
+                    </div>
                   </footer>
                 </article>
               );
@@ -222,6 +301,7 @@ function MatchPage() {
         <aside className="match-map" aria-label="Bản đồ vị trí các kèo">
           {/* `mapCenter` là tâm mặc định; marker lấy latitude/longitude của sân từ API. */}
           <MapContainer center={mapCenter} zoom={12} scrollWheelZoom zoomControl={false}>
+            <MatchMapBounds matches={matches} />
             <TileLayer
               key={mapStyle}
               attribution={activeTileProvider.attribution}
@@ -236,7 +316,10 @@ function MatchPage() {
                   key={match.id}
                   position={[match.court.latitude, match.court.longitude]}
                   icon={createMarkerIcon(selectedId === match.id, remaining)}
-                  eventHandlers={{ click: () => setSelectedId(match.id) }}
+                  eventHandlers={{ click: () => {
+                    setSelectedId(match.id);
+                    document.getElementById(`match-${match.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                  } }}
                 >
                   <Popup>
                     <strong>{match.title}</strong><br />

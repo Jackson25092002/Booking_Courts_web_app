@@ -5,11 +5,14 @@ import CourtListPage from "../pages/CourtListPage";
 import LoginPage from "../pages/LoginPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import RegisterPage from "../pages/RegisterPage";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
 import BookingHistoryPage from "../pages/BookingHistoryPage";
 import RequireAuth from "../components/auth/RequireAuth";
 import BookingPage from "../pages/BookingPage";
 import ProfilePage from "../pages/ProfilePage";
 import MatchPage from "../pages/MatchPage";
+import CreateMatchPage from "../pages/CreateMatchPage";
 import OwnerDashboardPage from "../pages/OwnerDashboardPage";
 
 function AppRoutes() {
@@ -17,6 +20,8 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route
         path="/owner"
         element={
@@ -48,6 +53,7 @@ function AppRoutes() {
           }
         />
         <Route path="/matches" element={<MatchPage />} />
+        <Route path="/matches/new" element={<RequireAuth><CreateMatchPage /></RequireAuth>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
