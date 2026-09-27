@@ -179,7 +179,7 @@ function MatchPage() {
   }
 
   async function shareMatch(id: string) {
-    const url = `${window.location.origin}/matches#match-${id}`;
+    const url = `${window.location.origin}/matches/${id}`;
     try {
       await navigator.clipboard.writeText(url);
       setActionMessage("Đã sao chép liên kết kèo.");
@@ -289,7 +289,7 @@ function MatchPage() {
                       <button type="button" aria-label="Sao chép liên kết kèo" onClick={() => void shareMatch(match.id)}>
                         <Share2 aria-hidden="true" />
                       </button>
-                      {match.court && <Link className="match-view-court" to={`/courts/${match.court.id}`}>Xem sân</Link>}
+                      <Link className="match-view-court" to={`/matches/${match.id}`}>Xem kèo</Link>
                     </div>
                   </footer>
                 </article>
@@ -325,7 +325,7 @@ function MatchPage() {
                     <strong>{match.title}</strong><br />
                     {match.court.name}<br />
                     <Clock3 size={13} /> {formatMatchTime(match.startsAt)} · còn {remaining} chỗ<br />
-                    <Link to={`/courts/${match.court.id}`}>Xem sân</Link>
+                    <Link to={`/matches/${match.id}`}>Xem kèo</Link>
                   </Popup>
                 </Marker>
               );

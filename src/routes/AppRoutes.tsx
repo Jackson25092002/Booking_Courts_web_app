@@ -13,6 +13,7 @@ import BookingPage from "../pages/BookingPage";
 import ProfilePage from "../pages/ProfilePage";
 import MatchPage from "../pages/MatchPage";
 import CreateMatchPage from "../pages/CreateMatchPage";
+import MatchDetailPage from "../pages/MatchDetailPage";
 import OwnerDashboardPage from "../pages/OwnerDashboardPage";
 import PaymentResultPage from "../pages/PaymentResultPage";
 import PolicyPage from "../pages/PolicyPage";
@@ -60,6 +61,8 @@ function AppRoutes() {
         />
         <Route path="/matches" element={<MatchPage />} />
         <Route path="/matches/new" element={<RequireAuth><CreateMatchPage /></RequireAuth>} />
+        <Route path="/matches/:id" element={<MatchDetailPage />} />
+        <Route path="/matches/:id/edit" element={<RequireAuth><CreateMatchPage /></RequireAuth>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -8,7 +8,7 @@ export const matchQuerySchema = z.object({
   date: z.string().refine(isValidDateString, "Ngày không hợp lệ").optional(),
   period: z.enum(["all", "weekend"]).default("all"),
   sort: z.enum(["soonest", "newest"]).default("soonest"),
-  status: z.enum(["OPEN", "FULL", "CANCELLED", "COMPLETED"]).default("OPEN"),
+  status: z.enum(["OPEN", "FULL", "CLOSED", "CANCELLED", "COMPLETED"]).default("OPEN"),
 }).refine((value) => !(value.date && value.period === "weekend"), {
   message: "Chọn một ngày cụ thể hoặc cuối tuần", path: ["date"],
 });

@@ -18,7 +18,7 @@ export interface MatchItem {
   startsAt: string;
   maxPlayers: number;
   currentPlayers: number;
-  status: "OPEN" | "FULL" | "CANCELLED" | "COMPLETED";
+  status: "OPEN" | "FULL" | "CLOSED" | "CANCELLED" | "COMPLETED";
   organizer: {
     id: string;
     fullName: string;
@@ -63,4 +63,12 @@ export async function getMatches(params: MatchFilters = {}, signal?: AbortSignal
   }>("/api/matches", { params, signal });
 
   return response.data;
+}
+
+export async function getMatch(id: string, signal?: AbortSignal) {
+  return (await api.get<{ success: boolean; data: MatchItem }>(`/api/matches/${id}`, { signal })).data;
+}
+
+export async function updateMatch(id: string, input: { action: "edit"; data: CreateMatchInput } | { action: "close" | "cancel" }) {
+  return (await api.patch<{ success: boolean; data: MatchItem }>(`/api/matches/${id}`, input)).data;
 }

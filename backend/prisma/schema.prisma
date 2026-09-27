@@ -24,6 +24,7 @@ enum BookingStatus {
 enum MatchStatus {
   OPEN
   FULL
+  CLOSED
   CANCELLED
   COMPLETED
 }
