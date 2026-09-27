@@ -1,4 +1,5 @@
 import api from "./api";
+import type { PaymentFeedback } from "./paymentService";
 
 export type BookingStatus =
   | "PENDING"
@@ -29,6 +30,7 @@ export interface CourtAvailability {
 }
 
 export interface Booking {
+  latestPayment?: { status: "WAITING" | "SUCCEEDED" | "FAILED"; responseCode: string | null; feedback: PaymentFeedback } | null;
   id: string;
   status: BookingStatus;
   totalAmount: number;

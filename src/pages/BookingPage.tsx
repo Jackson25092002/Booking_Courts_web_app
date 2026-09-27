@@ -12,6 +12,7 @@ import {
 } from "../services/bookingService";
 import { getCourt, type CourtDetail } from "../services/courtService";
 import "./BookingPage.css";
+import { startVNPayPayment } from "../services/paymentService";
 
 const DAY_NAMES = ["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"];
 const SLOT_MINUTES = 30;
@@ -276,7 +277,7 @@ function BookingPage() {
     setBookingError("");
 
     try {
-      await createBooking({
+      const created = await createBooking({
         courtId: court.id,
         selections: selectionGroups.map((group) => ({
           courtFieldId: group.fieldId,
@@ -284,9 +285,12 @@ function BookingPage() {
           endsAt: group.endsAt,
         })),
       });
-      navigate("/history", {
-        state: { successMessage: "Đặt sân thành công." },
-      });
+      try {
+        const payment = await startVNPayPayment(created.data.booking.id);
+        window.location.assign(payment.paymentUrl);
+      } catch (paymentError) {
+        navigate("/history", { state: { successMessage: `Đơn đặt sân đã được lưu nhưng chưa thanh toán. ${getApiError(paymentError).message}` } });
+      }
     } catch (error) {
       const apiError = getApiError(error);
 
@@ -548,7 +552,7 @@ function BookingPage() {
               disabled={selectionGroups.length === 0 || !acceptedTerms || isSubmitting}
               onClick={() => void submitBooking()}
             >
-              {isSubmitting ? "Đang tạo đơn..." : "Tiếp tục  →"}
+              {isSubmitting ? "Đang chuyển sang VNPay..." : "Thanh toán VNPay →"}
             </button>
             <p className="booking-checkout-card__support">Hỗ trợ nhanh: 123456789 (08h – 22h)</p>
           </aside>

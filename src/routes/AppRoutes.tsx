@@ -14,6 +14,7 @@ import ProfilePage from "../pages/ProfilePage";
 import MatchPage from "../pages/MatchPage";
 import CreateMatchPage from "../pages/CreateMatchPage";
 import OwnerDashboardPage from "../pages/OwnerDashboardPage";
+import PaymentResultPage from "../pages/PaymentResultPage";
 
 function AppRoutes() {
   return (
@@ -33,6 +34,7 @@ function AppRoutes() {
 
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/payment/result" element={<RequireAuth><PaymentResultPage /></RequireAuth>} />
         <Route path="/courts" element={<CourtListPage />} />
         <Route path="/courts/:id" element={<BookingPage />} />
         <Route path="/courts/:id/booking" element={<BookingPage />} />

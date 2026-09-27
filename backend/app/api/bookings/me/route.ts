@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getAuthSession } from "@/lib/auth";
 import { jsonResponse, optionsResponse } from "@/lib/http";
+import { getPaymentFeedback } from "@/lib/payment-feedback";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +20,11 @@ export async function GET(request: Request) {
   const bookings = await prisma.booking.findMany({
     where: { userId: session.userId },
     include: {
+      payments: {
+        take: 1,
+        orderBy: { createdAt: "desc" },
+        select: { status: true, responseCode: true },
+      },
       court: {
         select: {
           id: true,
@@ -41,6 +47,11 @@ export async function GET(request: Request) {
 
   return jsonResponse({
     success: true,
-    data: { bookings },
+    data: { bookings: bookings.map(({ payments, ...booking }) => ({
+      ...booking,
+      latestPayment: payments[0] ? {
+        ...payments[0], feedback: getPaymentFeedback(payments[0].status, payments[0].responseCode),
+      } : null,
+    })) },
   });
 }

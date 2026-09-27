@@ -107,11 +107,38 @@ model Booking {
   user  User          @relation(fields: [userId], references: [id])
   court Court         @relation(fields: [courtId], references: [id])
   slots BookingSlot[]
+  payments Payment[]
 
   @@index([userId])
   @@index([courtId])
   @@index([status])
   @@map("bookings")
+}
+
+enum PaymentStatus {
+  WAITING
+  SUCCEEDED
+  FAILED
+}
+
+model Payment {
+  id            String        @id @default(uuid()) @db.Uuid
+  bookingId     String        @map("booking_id") @db.Uuid
+  txnRef        String        @unique @map("txn_ref") @db.VarChar(100)
+  amount        Int
+  status        PaymentStatus @default(WAITING)
+  paymentUrl    String        @map("payment_url") @db.Text
+  expiresAt     DateTime      @map("expires_at")
+  responseCode  String?       @map("response_code") @db.VarChar(10)
+  transactionNo String?       @map("transaction_no") @db.VarChar(100)
+  bankCode      String?       @map("bank_code") @db.VarChar(20)
+  paidAt        DateTime?     @map("paid_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  booking       Booking       @relation(fields: [bookingId], references: [id])
+
+  @@index([bookingId, createdAt])
+  @@map("payments")
 }
 
 model BookingSlot {

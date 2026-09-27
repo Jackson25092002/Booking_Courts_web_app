@@ -1,3 +1,8 @@
+.booking-history-pay { border: 0; border-radius: 8px; padding: 12px 18px; background: #007a52; color: white; cursor: pointer; font: inherit; }
+.booking-history-pay:disabled { opacity: .6; cursor: wait; }
+.booking-history-payment-error { margin-top: 16px; padding: 14px; background: #fff8ed; border: 1px solid #f0d8b6; border-radius: 8px; color: #804615; }
+.booking-history-payment-error p { margin: 8px 0; line-height: 1.5; }
+
 .booking-history-page {
   min-height: 70vh;
   padding: 30px 24px 70px;
@@ -192,6 +197,8 @@
 
 .booking-history-card__footer {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
   margin-top: 17px;

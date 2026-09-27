@@ -1,0 +1,11 @@
+.payment-result { padding: 64px 20px; background: #f4faf6; min-height: 60vh; }
+.payment-result__card { max-width: 640px; margin: auto; padding: 40px; border: 1px solid #d9e8df; border-radius: 20px; background: white; text-align: center; color: #007a52; }
+.payment-result__card h1 { margin: 20px 0; font-size: 28px; }
+.payment-result__card p { color: #52645b; line-height: 1.6; }
+.payment-result__advice { padding: 16px; background: #f0f8f3; border-radius: 10px; }
+.payment-result__card strong { display: block; margin: 24px 0; font-size: 28px; }
+.payment-result__card small { display: block; overflow-wrap: anywhere; color: #64756b; }
+.payment-result__actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.payment-result__actions a, .payment-result__actions button { border: 0; border-radius: 8px; padding: 12px 18px; background: #007a52; color: white; text-decoration: none; cursor: pointer; font: inherit; }
+.payment-result__actions button:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 600px) { .payment-result__card { padding: 24px 16px; } }

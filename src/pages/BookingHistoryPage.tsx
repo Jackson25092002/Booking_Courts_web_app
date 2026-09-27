@@ -9,6 +9,7 @@ import {
   type BookingStatus,
 } from "../services/bookingService";
 import "./BookingHistoryPage.css";
+import { startVNPayPayment } from "../services/paymentService";
 
 const statusLabels: Record<BookingStatus, string> = {
   PENDING: "Chờ xác nhận",
@@ -31,6 +32,8 @@ function BookingHistoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [requestVersion, setRequestVersion] = useState(0);
+  const [payingId, setPayingId] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState("");
   const { signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -78,6 +81,21 @@ function BookingHistoryPage() {
     };
   }, [navigate, requestVersion, signOut]);
 
+  async function pay(bookingId: string) {
+    setPayingId(bookingId);
+    setPaymentError("");
+    try {
+      const payment = await startVNPayPayment(bookingId);
+      window.location.assign(payment.paymentUrl);
+    } catch (error) {
+      const apiError = getApiError(error);
+      if (apiError.status === 401) {
+        signOut();
+        navigate("/login", { state: { from: "/history", message: "Vui lòng đăng nhập lại để thanh toán." } });
+      } else setPaymentError(apiError.message);
+    } finally { setPayingId(null); }
+  }
+
   return (
     <div className="booking-history-page">
       <div className="booking-history-page__container">
@@ -99,6 +117,7 @@ function BookingHistoryPage() {
           <p className="booking-history-message" role="status">{successMessage}</p>
         )}
 
+        {paymentError && <p className="booking-history-state--error" role="alert">{paymentError}</p>}
         {isLoading ? (
           <div className="booking-history-state" role="status">Đang tải lịch sử đặt sân...</div>
         ) : error ? (
@@ -144,8 +163,20 @@ function BookingHistoryPage() {
 
                     <div className="booking-history-card__footer">
                       <small>Mã đơn: {booking.id.slice(0, 8).toUpperCase()}</small>
+                      {(["PENDING", "CONFIRMED"].includes(booking.status) && booking.latestPayment?.responseCode !== "07" && booking.slots.every((slot) => new Date(slot.startsAt) > new Date())) && (
+                        <button className="booking-history-pay" type="button" disabled={payingId !== null} onClick={() => void pay(booking.id)}>
+                          {payingId === booking.id ? "Đang xử lý..." : "Thanh toán VNPay"}
+                        </button>
+                      )}
                       <Link to={`/courts/${booking.court.id}`}>Xem sân</Link>
                     </div>
+                    {booking.latestPayment?.status === "FAILED" && (
+                      <div className="booking-history-payment-error">
+                        <strong>{booking.latestPayment.feedback.title}</strong>
+                        <p>{booking.latestPayment.feedback.advice}</p>
+                        <small>Mã phản hồi VNPay: {booking.latestPayment.responseCode || "Không có"}</small>
+                      </div>
+                    )}
                   </div>
                 </article>
               ))}
