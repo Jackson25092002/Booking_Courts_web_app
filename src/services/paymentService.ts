@@ -14,7 +14,7 @@ export async function startVNPayPayment(bookingId: string) {
 
 export async function getVNPayStatus(txnRef: string) {
   const response = await api.get<{ data: {
-    payment: { txnRef: string; status: "WAITING" | "SUCCEEDED" | "FAILED"; amount: number; bookingId: string; responseCode: string | null };
+    payment: { txnRef: string; status: "WAITING" | "SUCCEEDED" | "FAILED"; amount: number; bookingId: string; responseCode: string | null; booking: { status: string; confirmedAt: string | null } };
     expired: boolean;
     feedback: PaymentFeedback;
   } }>("/api/payments/vnpay/status", { params: { txnRef } });

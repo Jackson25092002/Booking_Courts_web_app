@@ -30,6 +30,7 @@ export interface CourtAvailability {
 }
 
 export interface Booking {
+  confirmedAt?: string | null;
   latestPayment?: { status: "WAITING" | "SUCCEEDED" | "FAILED"; responseCode: string | null; feedback: PaymentFeedback } | null;
   id: string;
   status: BookingStatus;

@@ -29,6 +29,7 @@ export interface OwnerDashboardData {
     next: { startsAt: string; customerName: string } | null;
   }>;
   todayBookings: Array<{
+    confirmedAt: string | null;
     id: string;
     status: "PENDING" | "CONFIRMED" | "PAID" | "CANCELLED" | "COMPLETED";
     totalAmount: number;

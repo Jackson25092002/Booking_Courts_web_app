@@ -10,6 +10,7 @@ export default function PaymentResultPage() {
   const [params] = useSearchParams();
   const txnRef = params.get("txnRef") || "";
   const [status, setStatus] = useState("WAITING");
+  const [confirmedAt, setConfirmedAt] = useState<string | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<PaymentFeedback | null>(null);
   const [responseCode, setResponseCode] = useState<string | null>(null);
@@ -36,9 +37,11 @@ export default function PaymentResultPage() {
         setError("");
         setAmount(data.payment.amount);
         setStatus(data.payment.status);
+        setConfirmedAt(data.payment.booking.confirmedAt);
         setFeedback(data.feedback);
         setResponseCode(data.payment.responseCode);
-        if (data.payment.status === "WAITING" && ++attempts < 15) timer = setTimeout(() => void check(), 2000);
+        const pending = data.payment.status === "WAITING" || (data.payment.status === "SUCCEEDED" && !data.payment.booking.confirmedAt);
+        if (pending && ++attempts < 60) timer = setTimeout(() => void check(), data.payment.status === "WAITING" ? 5000 : 15000);
         else setChecking(false);
       } catch (requestError) {
         if (stopped) return;
@@ -59,9 +62,9 @@ export default function PaymentResultPage() {
   return <section className="payment-result">
     <div className="payment-result__card" aria-live="polite">
       {success ? <CircleCheck size={56} /> : failed ? <CircleX size={56} /> : <Clock size={56} />}
-      <h1>{error ? "Không thể kiểm tra thanh toán" : feedback?.title || "Đang chờ xác nhận thanh toán"}</h1>
-      <p>{error || feedback?.message || "Đang kiểm tra kết quả từ VNPay..."}</p>
-      {!error && feedback?.advice && <p className="payment-result__advice">{feedback.advice}</p>}
+      <h1>{error ? "Không thể kiểm tra thanh toán" : success ? (confirmedAt ? "Chủ sân đã xác nhận đặt sân" : "Đang chờ chủ sân xác nhận") : feedback?.title || "Đang chờ xác nhận thanh toán"}</h1>
+      <p>{error || (success ? (confirmedAt ? "Đã thanh toán thành công và chủ sân đã xác nhận lịch của bạn." : "Đã thanh toán thành công. Chủ sân đã được thông báo và sẽ xác nhận lịch đặt sân của bạn.") : feedback?.message || "Đang kiểm tra kết quả từ VNPay...")}</p>
+      {!error && !success && feedback?.advice && <p className="payment-result__advice">{feedback.advice}</p>}
       {amount !== null && <strong>{amount.toLocaleString("vi-VN")}đ</strong>}
       {txnRef && <small>Mã giao dịch: {txnRef}</small>}
       {responseCode && !error && <small>Mã phản hồi VNPay: {responseCode}</small>}

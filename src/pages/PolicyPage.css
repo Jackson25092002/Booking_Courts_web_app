@@ -1,0 +1,5 @@
+.policy-page { max-width: 920px; margin: 40px auto; padding: 28px; color: #24382c; line-height: 1.7; }
+.policy-page nav { display: flex; flex-wrap: wrap; gap: 20px; }
+.policy-page a { color: #007a52; }
+.policy-page section { background: white; border: 1px solid #d9e8df; padding: 20px; margin-top: 20px; border-radius: 12px; }
+.policy-page h2 { font-size: 20px; }

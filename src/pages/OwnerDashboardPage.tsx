@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   BarChart3,
-  Bell,
   CalendarDays,
   CalendarPlus,
   CircleDollarSign,
@@ -19,6 +18,8 @@ import { useAuth } from "../contexts/useAuth";
 import { getApiError } from "../services/api";
 import { getOwnerDashboard, type OwnerDashboardData } from "../services/ownerService";
 import "./OwnerDashboardPage.css";
+import NotificationBell from "../components/NotificationBell";
+import OwnerPaidBookings from "../components/OwnerPaidBookings";
 
 const statusLabels = {
   PENDING: "Chờ xác nhận",
@@ -59,6 +60,7 @@ function OwnerDashboardPage() {
   const [dashboard, setDashboard] = useState<OwnerDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [version, setVersion] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -77,7 +79,7 @@ function OwnerDashboardPage() {
       });
 
     return () => { ignore = true; };
-  }, [courtId, date]);
+  }, [courtId, date, version]);
 
   const maxRevenue = Math.max(...(dashboard?.chart.map((item) => item.revenue) ?? [0]), 1);
   const totalBookings = useMemo(
@@ -142,12 +144,13 @@ function OwnerDashboardPage() {
               </select>
             </label>
             <label><CalendarDays /><input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></label>
-            <button className="owner-notification" type="button" aria-label="Thông báo"><Bell /><i /></button>
+            <NotificationBell />
             <button className="owner-create" type="button"><CalendarPlus />Tạo booking</button>
           </div>
         </header>
 
         <div className="owner-main__body">
+          <OwnerPaidBookings onConfirmed={() => setVersion((v) => v + 1)} />
           {isLoading && <p className="owner-state">Đang tải dữ liệu vận hành...</p>}
           {error && <p className="owner-state is-error" role="alert">{error}</p>}
 
@@ -216,7 +219,7 @@ function OwnerDashboardPage() {
                             <td>{slot?.courtField.name ?? booking.court.name}</td>
                             <td>{slot ? `${formatTime(slot.startsAt)}–${formatTime(slot.endsAt)}` : "—"}</td>
                             <td><strong>{formatMoney(booking.totalAmount)}</strong></td>
-                            <td><span className={`owner-booking-status is-${booking.status.toLowerCase()}`}>{statusLabels[booking.status]}</span></td>
+                            <td><span className={`owner-booking-status is-${booking.status.toLowerCase()}`}>{booking.status === "PAID" ? (booking.confirmedAt ? "Đã xác nhận lịch" : "Đã trả tiền, chờ xác nhận") : statusLabels[booking.status]}</span></td>
                           </tr>
                         );
                       })}

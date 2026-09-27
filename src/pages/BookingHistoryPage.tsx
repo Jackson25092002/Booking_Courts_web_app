@@ -44,8 +44,8 @@ function BookingHistoryPage() {
   useEffect(() => {
     let shouldIgnore = false;
 
-    async function loadBookings() {
-      setIsLoading(true);
+    async function loadBookings(silent = false) {
+      if (!silent) setIsLoading(true);
       setError("");
 
       try {
@@ -75,9 +75,11 @@ function BookingHistoryPage() {
     }
 
     void loadBookings();
+    const refreshTimer = setInterval(() => void loadBookings(true), 15000);
 
     return () => {
       shouldIgnore = true;
+      clearInterval(refreshTimer);
     };
   }, [navigate, requestVersion, signOut]);
 
@@ -151,6 +153,7 @@ function BookingHistoryPage() {
                     </div>
 
                     <p className="booking-history-card__address">⌖ {booking.court.address}</p>
+                    {booking.status === "PAID" && <p>{booking.confirmedAt ? "Chủ sân đã xác nhận lịch đặt sân." : "Đã thanh toán đủ tiền — chờ chủ sân xác nhận lịch."}</p>}
                     <div className="booking-history-card__slot-list">
                       {booking.slots.map((slot) => (
                         <div className="booking-history-card__details" key={slot.id}>

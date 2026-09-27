@@ -20,11 +20,20 @@ export async function GET(request: Request) {
         responseCode: String(result.vnp_ResponseCode), transactionNo: String(result.vnp_TransactionNo || ""),
         bankCode: result.vnp_BankCode || null, paidAt: success ? new Date() : null,
       } });
-      if (success) await tx.booking.update({ where: { id: payment.bookingId }, data: { status: "PAID" } });
+      if (success) {
+        await tx.booking.update({ where: { id: payment.bookingId }, data: { status: "PAID" } });
+        const court = await tx.court.findUniqueOrThrow({ where: { id: payment.booking.courtId }, select: { ownerId: true, name: true } });
+        await tx.notification.upsert({
+          where: { userId_bookingId_kind: { userId: court.ownerId, bookingId: payment.bookingId, kind: "BOOKING_PAID" } },
+          update: {},
+          create: { userId: court.ownerId, bookingId: payment.bookingId, kind: "BOOKING_PAID", message: `Khách đã thanh toán đủ ${payment.amount.toLocaleString("vi-VN")}đ cho ${court.name}. Vui lòng xác nhận đơn ${payment.bookingId.slice(0, 8)}.` },
+        });
+      }
       return { RspCode: "00", Message: "Confirm Success" };
     }, { isolationLevel: "Serializable" });
     return Response.json(reply);
-  } catch {
+  } catch (error) {
+    console.error("VNPay IPN transaction failed", error instanceof Error ? error.name : "UnknownError");
     // VNPay can retry transient errors; never acknowledge a failed database write.
     return Response.json({ RspCode: "99", Message: "Unknown error" });
   }

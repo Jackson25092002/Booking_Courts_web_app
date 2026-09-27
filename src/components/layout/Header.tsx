@@ -4,6 +4,7 @@ import { CircleUserRound } from "lucide-react";
 import { useAuth } from "../../contexts/useAuth";
 import logoLenKeo from "../../assets/logo_len_keo.png";
 import "./Header.css";
+import NotificationBell from "../NotificationBell";
 
 function Header() {
   const { user, isAuthenticated, signOut } = useAuth();
@@ -83,6 +84,7 @@ function Header() {
         <div className="header__actions">
           {isAuthenticated && user ? (
             <>
+              <NotificationBell />
               <NavLink
                 to="/profile"
                 className={({ isActive }) =>

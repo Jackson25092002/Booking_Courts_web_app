@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   if (!session) return jsonResponse({ success: false, message: "Vui lòng đăng nhập để xem thanh toán." }, 401);
   const txnRef = new URL(request.url).searchParams.get("txnRef") || "";
   if (!/^[a-f0-9]{32}$/.test(txnRef)) return jsonResponse({ success: false, message: "Mã thanh toán không hợp lệ." }, 400);
-  const payment = await prisma.payment.findFirst({ where: { txnRef, booking: { userId: session.userId } }, select: { txnRef: true, status: true, amount: true, expiresAt: true, bookingId: true, responseCode: true, paidAt: true, booking: { select: { status: true } } } });
+  const payment = await prisma.payment.findFirst({ where: { txnRef, booking: { userId: session.userId } }, select: { txnRef: true, status: true, amount: true, expiresAt: true, bookingId: true, responseCode: true, paidAt: true, booking: { select: { status: true, confirmedAt: true } } } });
   if (!payment) return jsonResponse({ success: false, message: "Không tìm thấy thanh toán." }, 404);
   return jsonResponse({ success: true, data: { payment, feedback: getPaymentFeedback(payment.status, payment.responseCode), expired: payment.status === "WAITING" && payment.expiresAt <= new Date() } });
 }

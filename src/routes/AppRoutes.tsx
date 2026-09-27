@@ -15,6 +15,7 @@ import MatchPage from "../pages/MatchPage";
 import CreateMatchPage from "../pages/CreateMatchPage";
 import OwnerDashboardPage from "../pages/OwnerDashboardPage";
 import PaymentResultPage from "../pages/PaymentResultPage";
+import PolicyPage from "../pages/PolicyPage";
 
 function AppRoutes() {
   return (
@@ -34,6 +35,9 @@ function AppRoutes() {
 
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/terms" element={<PolicyPage />} />
+        <Route path="/privacy" element={<PolicyPage />} />
+        <Route path="/refund-policy" element={<PolicyPage />} />
         <Route path="/payment/result" element={<RequireAuth><PaymentResultPage /></RequireAuth>} />
         <Route path="/courts" element={<CourtListPage />} />
         <Route path="/courts/:id" element={<BookingPage />} />

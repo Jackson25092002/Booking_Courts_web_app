@@ -1,0 +1,5 @@
+.notification-bell { position: relative; }
+.notification-bell > button { display: flex; align-items: center; gap: 4px; border: 1px solid #d3e6d9; border-radius: 12px; padding: 9px; background: #f4faf6; color: #007a52; cursor: pointer; }
+.notification-bell__panel { position: absolute; right: 0; top: 48px; z-index: 100; width: min(340px, 85vw); max-height: 400px; overflow: auto; background: white; border: 1px solid #d3e6d9; border-radius: 12px; box-shadow: 0 8px 30px #0002; padding: 16px; }
+.notification-bell__panel a { display: block; padding: 12px 0; color: #35463e; text-decoration: none; border-bottom: 1px solid #edf4ef; font-size: 14px; }
+.notification-bell__panel .is-unread { color: #007a52; font-weight: 700; }

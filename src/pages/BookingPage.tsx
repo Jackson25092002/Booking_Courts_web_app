@@ -540,7 +540,7 @@ function BookingPage() {
                 onChange={(event) => setAcceptedTerms(event.target.checked)}
               />
               <span>
-                Tôi đã đọc và đồng ý với <u>Điều khoản dịch vụ</u> và <u>Chính sách hoàn tiền</u> của Lên Kèo Thôi.
+                Tôi đã đọc và đồng ý với <Link to="/terms" target="_blank" rel="noopener noreferrer">Điều khoản dịch vụ</Link> và <Link to="/refund-policy" target="_blank" rel="noopener noreferrer">Chính sách hoàn tiền</Link> của Lên Kèo Thôi.
               </span>
             </label>
 

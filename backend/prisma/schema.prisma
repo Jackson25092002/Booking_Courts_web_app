@@ -45,6 +45,7 @@ model User {
 
   ownedCourts      Court[]   @relation("CourtOwner")
   bookings         Booking[]
+  notifications    Notification[]
   reviews          Review[]
   organizedMatches Match[]   @relation("MatchOrganizer")
 
@@ -95,6 +96,7 @@ model CourtField {
 }
 
 model Booking {
+  confirmedAt DateTime? @map("confirmed_at")
   id          String        @id @default(uuid()) @db.Uuid
   userId      String        @map("user_id") @db.Uuid
   courtId     String        @map("court_id") @db.Uuid
@@ -108,11 +110,27 @@ model Booking {
   court Court         @relation(fields: [courtId], references: [id])
   slots BookingSlot[]
   payments Payment[]
+  notifications Notification[]
 
   @@index([userId])
   @@index([courtId])
   @@index([status])
   @@map("bookings")
+}
+
+model Notification {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  bookingId String @map("booking_id") @db.Uuid
+  kind String @db.VarChar(40)
+  message String @db.VarChar(500)
+  readAt DateTime? @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user User @relation(fields: [userId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
+  @@unique([userId, bookingId, kind])
+  @@index([userId, createdAt])
+  @@map("notifications")
 }
 
 enum PaymentStatus {

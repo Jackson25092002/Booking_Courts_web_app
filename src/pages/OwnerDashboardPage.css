@@ -145,3 +145,7 @@
   .owner-topbar__controls select,
   .owner-topbar__controls input { max-width: none; width: 100%; }
 }
+.owner-paid-booking { padding: 20px; border-top: 1px solid #d9e8df; }
+.owner-paid-booking p { margin: 8px 0; }
+.owner-paid-booking button { margin: 12px; padding: 10px 16px; color: white; background: #007a52; border: 0; border-radius: 8px; cursor: pointer; }
+.owner-paid-booking button:disabled { opacity: .6; cursor: wait; }

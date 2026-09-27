@@ -77,6 +77,8 @@ export async function GET(request: Request) {
           select: {
             id: true,
             status: true,
+            confirmedAt: true,
+            payments: { select: { status: true, amount: true } },
             totalAmount: true,
             createdAt: true,
             user: { select: { id: true, fullName: true, phone: true } },
@@ -101,8 +103,9 @@ export async function GET(request: Request) {
     const monthBookings = bookings.filter((booking) =>
       booking.slots.some((slot) => slot.startsAt >= monthStart && slot.startsAt < nextMonthStart),
     );
-    const paidToday = todayBookings.filter((booking) => booking.status !== "CANCELLED");
-    const paidMonth = monthBookings.filter((booking) => booking.status !== "CANCELLED");
+    const hasPaid = (booking: typeof bookings[number]) => booking.payments.some((payment) => payment.status === "SUCCEEDED" && payment.amount === booking.totalAmount);
+    const paidToday = todayBookings.filter(hasPaid);
+    const paidMonth = monthBookings.filter(hasPaid);
     const allFields = courts
       .filter((court) => scopedCourtIds.includes(court.id))
       .flatMap((court) => court.fields.map((field) => ({ ...field, courtId: court.id, courtName: court.name })));
@@ -140,14 +143,15 @@ export async function GET(request: Request) {
       const dateKey = vietnamDateString(date);
       const range = getDateRange(dateKey);
       const revenue = bookings
-        .filter((booking) => booking.status !== "CANCELLED")
+        .filter(hasPaid)
         .filter((booking) => booking.slots.some((slot) => slot.startsAt >= range.start && slot.startsAt <= range.end))
         .reduce((total, booking) => total + booking.totalAmount, 0);
       return { date: dateKey, revenue };
     });
 
     const statusCounts = bookings.reduce<Record<string, number>>((counts, booking) => {
-      counts[booking.status] = (counts[booking.status] ?? 0) + 1;
+      const state = booking.status === "PAID" ? (booking.confirmedAt ? "CONFIRMED" : "PENDING") : booking.status;
+      counts[state] = (counts[state] ?? 0) + 1;
       return counts;
     }, {});
 
@@ -161,7 +165,7 @@ export async function GET(request: Request) {
           todayRevenue: paidToday.reduce((total, booking) => total + booking.totalAmount, 0),
           monthRevenue: paidMonth.reduce((total, booking) => total + booking.totalAmount, 0),
           todayBookingCount: todayBookings.length,
-          pendingCount: todayBookings.filter((booking) => booking.status === "PENDING").length,
+          pendingCount: todayBookings.filter((booking) => booking.status === "PAID" && !booking.confirmedAt).length,
           availableFieldCount: fieldStatuses.filter((field) => field.state === "AVAILABLE").length,
           totalFieldCount: allFields.length,
           occupancyRate: allFields.length

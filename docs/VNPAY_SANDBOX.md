@@ -43,7 +43,7 @@ Return chỉ xác minh chữ ký và chuyển đến `/payment/result?txnRef=...
 
 ## Giới hạn cần biết
 
-- Chỉ sandbox, chưa hoàn tiền hoặc tự động đối soát bằng QueryDR.
+- Chỉ sandbox, chưa hoàn tiền. Đã có đối soát QueryDR theo yêu cầu qua nút “Đối soát với VNPay”; không chạy truy vấn liên tục vì VNPay giới hạn khoảng cách truy vấn.
 - URL hết hạn **không tự hủy booking/nhả sân**; giữ cách đặt sân hiện tại. Booking vẫn PENDING và slot vẫn được giữ. Cần bổ sung chính sách giữ chỗ/hủy riêng trước khi vận hành thật.
 - Giao dịch WAITING hết hạn nhưng chưa có IPN không được tạo giao dịch mới, để tránh thu tiền hai lần. Cần đối soát với VNPay trước khi thử lại; không sửa trạng thái thủ công khi chưa kiểm tra ngân hàng.
 - Không nhập thẻ thật trong sandbox. Dùng thẻ thử nghiệm VNPay công bố tại https://sandbox.vnpayment.vn/apis/vnpay-demo/.
@@ -84,3 +84,19 @@ Các test tự động kiểm tra chữ ký, số tiền, thời gian GMT+7, quy
 Tài liệu chuẩn: https://sandbox.vnpayment.vn/apis/docs/thanh-toan-pay/pay.html
 
 Commit gợi ý: `feat: integrate VNPay sandbox checkout, IPN verification and payment result`
+
+## Chủ sân xác nhận và thông báo
+
+Migration `20260927010000_owner_confirmation` thêm `bookings.confirmed_at` và bảng `notifications`, không xóa dữ liệu.
+Thanh toán thành công (IPN hoặc QueryDR đã xác minh hash + số tiền + tham chiếu) cập nhật booking PAID, gửi một thông báo BOOKING_PAID cho đúng chủ sân. Chủ sân xem mục “Đã thanh toán — chờ xác nhận” ở `/owner`, gồm tất cả ngày chơi, rồi bấm xác nhận. Backend kiểm tra quyền sở hữu sân và khoản thanh toán đủ tiền, lưu confirmedAt và một thông báo BOOKING_CONFIRMED cho khách. Bấm lặp không tạo thông báo trùng. Booking vẫn PAID để không mất dấu trạng thái tiền.
+
+Chuông thông báo trên Header và trang owner cập nhật mỗi 15 giây, chỉ xem/đánh dấu đọc thông báo của tài khoản đang đăng nhập. Đây là thông báo trong web, chưa email/push.
+
+Trang chính sách: `/terms`, `/privacy`, `/refund-policy`. Các liên kết bên checkbox thanh toán mở tab mới để giữ lựa chọn sân. Nội dung là bản demo cần được rà soát trước kinh doanh, chưa có hủy/hoàn tiền tự động.
+
+Đối soát thủ công từ terminal (chỉ quản trị, không tự gán PAID):
+```powershell
+cd backend
+npx tsx scripts/reconcile-payment.ts <txnRef>
+```
+QueryDR chỉ đồng bộ thành công khi phản hồi ký hợp lệ, đúng mã, đúng số tiền, loại giao dịch thanh toán 01 và trạng thái 00. IPN vẫn phải được đăng ký với URL backend HTTPS công khai. Không giả lập IPN thành công trên dữ liệu thật.

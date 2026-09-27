@@ -50,12 +50,15 @@ test("IPN updates booking only once, rejects unknown orders and wrong amounts", 
   let status = "WAITING";
   let found = true;
   let bookingWrites = 0;
+  let notificationWrites = 0;
   const tx = {
     payment: {
       findUnique: async () => found ? { id: "payment", bookingId: "booking", amount, status, booking: { totalAmount: amount, status: "PENDING" } } : null,
       update: async ({ data }: { data: { status: string } }) => { status = data.status; },
     },
     booking: { update: async () => { bookingWrites++; } },
+    court: { findUniqueOrThrow: async () => ({ ownerId: "owner", name: "Test court" }) },
+    notification: { upsert: async () => { notificationWrites++; } },
   };
   const originalTransaction = prisma.$transaction;
   prisma.$transaction = (async (callback: (value: typeof tx) => Promise<unknown>) => callback(tx)) as unknown as typeof prisma.$transaction;
@@ -66,7 +69,9 @@ test("IPN updates booking only once, rejects unknown orders and wrong amounts", 
     assert.equal((await call()).RspCode, "00");
     assert.equal(status, "SUCCEEDED");
     assert.equal(bookingWrites, 1);
+    assert.equal(notificationWrites, 1);
     assert.equal((await call()).RspCode, "02");
+    assert.equal(notificationWrites, 1);
     assert.equal(bookingWrites, 1);
     status = "WAITING"; amount = 1;
     assert.equal((await call()).RspCode, "04");

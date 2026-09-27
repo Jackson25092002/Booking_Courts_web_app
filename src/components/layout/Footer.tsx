@@ -47,6 +47,7 @@ function Footer() {
           <nav aria-label="Chính sách và hỗ trợ">
             <Link to="/terms">Điều khoản sử dụng</Link>
             <Link to="/privacy">Chính sách bảo mật</Link>
+            <Link to="/refund-policy">Chính sách hoàn tiền</Link>
           </nav>
         </section>
 
