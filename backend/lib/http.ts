@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 function getCorsHeaders() {
   return {
     "Access-Control-Allow-Origin":
-      process.env.FRONTEND_URL ?? "http://localhost:5173",
+      new URL(process.env.FRONTEND_URL?.trim() || "http://localhost:5173").origin,
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     Vary: "Origin",

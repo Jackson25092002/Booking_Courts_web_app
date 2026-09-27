@@ -103,3 +103,25 @@ test("create payment requires login and validates bookingId before database acce
   const invalid = new Request("http://localhost/api/payments/vnpay", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ bookingId: "invalid", amount: 1 }) });
   assert.equal((await POST(invalid)).status, 400);
 });
+
+test("signed Return redirects only, never settles a payment", async () => {
+  const { GET } = await import("../app/api/payments/vnpay/return/route");
+  const { default: prisma } = await import("./prisma");
+  const originalTransaction = prisma.$transaction;
+  const originalOrigin = process.env.FRONTEND_URL;
+  process.env.FRONTEND_URL = "https://frontend.example.com";
+  prisma.$transaction = (() => { throw new Error("Return must never write transactions"); }) as unknown as typeof prisma.$transaction;
+  try {
+    const response = await GET(new Request(`https://backend.example.com/api/payments/vnpay/return?${signedQuery()}`));
+    assert.equal(response.status, 303);
+    const location = new URL(response.headers.get("location")!);
+    assert.equal(location.origin, process.env.FRONTEND_URL);
+    assert.equal(location.searchParams.get("txnRef"), "a".repeat(32));
+    const invalid = await GET(new Request("https://backend.example.com/api/payments/vnpay/return"));
+    assert.equal(new URL(invalid.headers.get("location")!).searchParams.get("error"), "invalid-signature");
+  } finally {
+    prisma.$transaction = originalTransaction;
+    if (originalOrigin === undefined) delete process.env.FRONTEND_URL;
+    else process.env.FRONTEND_URL = originalOrigin;
+  }
+});
