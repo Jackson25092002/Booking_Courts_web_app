@@ -2,11 +2,13 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { getAuthSession } from "@/lib/auth";
 import { jsonResponse, optionsResponse } from "@/lib/http";
+import { sendMatchShortageReminders } from "@/lib/match-reminders";
 export const runtime = "nodejs";
 export const OPTIONS = optionsResponse;
 export async function GET(request: Request) {
   const session = await getAuthSession(request);
   if (!session) return jsonResponse({ message: "Vui lòng đăng nhập." }, 401);
+  await sendMatchShortageReminders(new Date(), session.userId);
   const [notifications, unreadCount] = await Promise.all([
     prisma.notification.findMany({ where: { userId: session.userId }, orderBy: { createdAt: "desc" }, take: 30 }),
     prisma.notification.count({ where: { userId: session.userId, readAt: null } }),

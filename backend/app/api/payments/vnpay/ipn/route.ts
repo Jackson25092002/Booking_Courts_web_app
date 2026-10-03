@@ -30,7 +30,7 @@ export async function GET(request: Request) {
         });
       }
       return { RspCode: "00", Message: "Confirm Success" };
-    }, { isolationLevel: "Serializable" });
+    }, { isolationLevel: "Serializable", maxWait: 10000, timeout: 15000 });
     return Response.json(reply);
   } catch (error) {
     console.error("VNPay IPN transaction failed", error instanceof Error ? error.name : "UnknownError");

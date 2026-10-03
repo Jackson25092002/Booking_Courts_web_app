@@ -39,7 +39,7 @@ export async function sendPasswordResetEmail({
       subject: "Đặt lại mật khẩu Lên Kèo Thôi",
       html: `<p>Xin chào ${escapeHtml(fullName)},</p>
         <p>Bạn vừa yêu cầu đặt lại mật khẩu. Liên kết dưới đây có hiệu lực trong 15 phút:</p>
-        <p><a href="${escapeHtml(resetUrl)}">Đặt lại mật khẩu</a></p>
+        <p><a href="${escapeHtml(resetUrl)}">Verify email và đặt lại mật khẩu</a></p>
         <p>Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email.</p>`,
     }),
   });

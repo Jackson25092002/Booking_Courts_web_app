@@ -23,6 +23,8 @@ test("detail and management: ownership, validation, closed state, cancellation a
   const originalFind = prisma.match.findUnique;
   const originalUpdate = prisma.match.updateMany;
   const originalCourt = prisma.court.findFirst;
+  const originalCount = prisma.matchParticipant.count;
+  prisma.matchParticipant.count = (async () => 0) as typeof originalCount;
   prisma.match.findUnique = (async () => found ? { ...match } : null) as unknown as typeof originalFind;
   prisma.match.updateMany = (async ({ where, data }: { where: { organizerId: string; status: string }; data: object }) => {
     assert.equal(where.organizerId, owner);
@@ -62,6 +64,7 @@ test("detail and management: ownership, validation, closed state, cancellation a
     match.status = "OPEN"; match.startsAt = new Date(Date.now() - 1000);
     assert.equal((await PATCH(request({ action: "close" }), context)).status, 409);
   } finally {
+    prisma.matchParticipant.count = originalCount;
     prisma.match.findUnique = originalFind; prisma.match.updateMany = originalUpdate; prisma.court.findFirst = originalCourt;
   }
 });

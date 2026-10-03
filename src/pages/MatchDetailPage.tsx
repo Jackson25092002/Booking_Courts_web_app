@@ -3,21 +3,44 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarDays, MapPin, Users, Pencil, Ban, CircleStop, UserRound } from "lucide-react";
 import { useAuth } from "../contexts/useAuth";
 import { getApiError } from "../services/api";
-import { getMatch, updateMatch, type MatchItem } from "../services/matchService";
+import { getMatch, getMatchMembership, joinMatch, leaveMatch, updateMatch, type MatchItem } from "../services/matchService";
 import "./MatchDetailPage.css";
 
 const labels = { OPEN: "Đang tuyển", FULL: "Đã đủ người", CLOSED: "Đã đóng tuyển", CANCELLED: "Đã hủy", COMPLETED: "Đã hoàn thành" };
 export default function MatchDetailPage() {
   const { id = "" } = useParams();
   const { user } = useAuth();
+  const userId = user?.id;
   const location = useLocation();
   const [match, setMatch] = useState<MatchItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState<string>(location.state?.message || "");
   const [busy, setBusy] = useState(false);
-  const [pending, setPending] = useState<"close" | "cancel" | null>(null);
+  const [pending, setPending] = useState<"close" | "cancel" | "join" | "leave" | null>(null);
   const [version, setVersion] = useState(0);
+  const [joined, setJoined] = useState(false);
+  const [checkingMembership, setCheckingMembership] = useState(false);
+  useEffect(() => {
+    let ignore = false;
+    setJoined(false);
+    setCheckingMembership(!!userId);
+    if (userId) getMatchMembership(id)
+      .then((r) => { if (!ignore) setJoined(r.data.joined); })
+      .catch((e) => { if (!ignore) setError(getApiError(e).message); })
+      .finally(() => { if (!ignore) setCheckingMembership(false); });
+    return () => { ignore = true; };
+  }, [id, userId]);
+  async function handleJoin() {
+    if (busy || joined) return;
+    setBusy(true); setError(""); setNotice("");
+    try {
+      const response = await joinMatch(id);
+      setJoined(true); setNotice(response.message); setPending(null);
+      setVersion((v) => v + 1);
+    } catch (e) { setError(getApiError(e).message); }
+    finally { setBusy(false); }
+  }
   useEffect(() => {
     let ignore = false;
     setLoading(true); setError(""); setMatch(null); setPending(null);
@@ -28,8 +51,15 @@ export default function MatchDetailPage() {
   }, [id, version]);
   async function confirmAction() {
     if (!pending || busy) return;
+    if (pending === "join") { await handleJoin(); return; }
     setBusy(true); setError(""); setNotice("");
     try {
+      if (pending === "leave") {
+        const response = await leaveMatch(id);
+        setJoined(false); setNotice(response.message); setPending(null);
+        setVersion((v) => v + 1);
+        return;
+      }
       const response = await updateMatch(id, { action: pending });
       setMatch(response.data);
       setNotice(pending === "close" ? "Đã đóng tuyển. Kèo vẫn giữ thông tin buổi chơi." : "Đã hủy kèo. Thao tác này không hủy hoặc hoàn tiền đơn đặt sân.");
@@ -61,9 +91,23 @@ export default function MatchDetailPage() {
           {!future && <p>Buổi chơi đã đến giờ bắt đầu. Không còn mở tuyển.</p>}
           <div className="match-detail-host"><UserRound /><div><small>Người tổ chức</small><strong>{match.organizer.fullName}</strong></div></div>
           {match.court && <div className="match-detail-venue"><p>Giá sân tham khảo: {match.court.pricePerHour.toLocaleString("vi-VN")}đ/giờ — không phải phí tham gia mỗi người.</p><Link to={`/courts/${match.court.id}`}>Xem sân</Link></div>}
+          {!owner && <div className="match-detail-actions">
+            {!user ? <Link to="/login">Đăng nhập để tham gia</Link> :
+              <button type="button" disabled={busy || checkingMembership || joined || !future || match.status !== "OPEN" || match.currentPlayers >= match.maxPlayers}
+                onClick={() => setPending("join")}>
+                {checkingMembership ? "Đang kiểm tra..." : joined ? "Đã tham gia" : busy ? "Đang tham gia..." : "Tham gia kèo"}
+              </button>}
+            {joined && future && !["CANCELLED", "COMPLETED"].includes(match.status) && <button type="button" className="is-danger" disabled={busy} onClick={() => setPending("leave")}>Hủy tham gia</button>}
+          </div>}
+          {!owner && (pending === "join" || pending === "leave") && <div className="match-detail-confirm" role="group" aria-label="Xác nhận tham gia kèo">
+            <p>{pending === "join" ? "Bạn xác nhận tham gia buổi chơi này? Người tạo kèo sẽ nhận thông báo. Thao tác này không đặt sân hoặc thanh toán." : "Bạn muốn hủy tham gia? Người tạo kèo sẽ được thông báo. Việc này chỉ xóa bạn khỏi kèo, không hủy cả kèo."}</p>
+            <button disabled={busy} onClick={() => void confirmAction()}>{busy ? "Đang xử lý..." : pending === "join" ? "Xác nhận tham gia" : "Xác nhận hủy tham gia"}</button>
+            <button disabled={busy} onClick={() => setPending(null)}>Quay lại</button>
+          </div>}
         </article>
         {manageable && <section className="match-detail-card match-detail-management">
           <h2>Quản lý kèo của bạn</h2>
+          <p>Không bắt buộc đặt sân trước khi tạo kèo. Nếu chưa đủ người trong 8 tiếng trước giờ bắt đầu, hệ thống sẽ nhắc bạn cân nhắc tiếp tục tuyển, đóng tuyển hoặc hủy kèo; không tự động hủy.</p>
           <div className="match-detail-actions">
             <Link to={`/matches/${id}/edit`}><Pencil size={18} />Sửa kèo</Link>
             {match.status !== "CLOSED" && <button disabled={busy} onClick={() => setPending("close")}><CircleStop size={18} />Đóng tuyển</button>}

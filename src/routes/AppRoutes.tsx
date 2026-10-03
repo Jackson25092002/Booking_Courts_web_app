@@ -8,6 +8,7 @@ import RegisterPage from "../pages/RegisterPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import BookingHistoryPage from "../pages/BookingHistoryPage";
+import BookingReceiptPage from "../pages/BookingReceiptPage";
 import RequireAuth from "../components/auth/RequireAuth";
 import BookingPage from "../pages/BookingPage";
 import ProfilePage from "../pages/ProfilePage";
@@ -60,6 +61,7 @@ function AppRoutes() {
           }
         />
         <Route path="/matches" element={<MatchPage />} />
+        <Route path="/history/:id/receipt" element={<RequireAuth><BookingReceiptPage /></RequireAuth>} />
         <Route path="/matches/new" element={<RequireAuth><CreateMatchPage /></RequireAuth>} />
         <Route path="/matches/:id" element={<MatchDetailPage />} />
         <Route path="/matches/:id/edit" element={<RequireAuth><CreateMatchPage /></RequireAuth>} />

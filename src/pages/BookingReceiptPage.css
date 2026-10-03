@@ -1,0 +1,53 @@
+.booking-receipt-page { min-height: 70vh; background: #f4faf5; color: #17211b; padding: 30px 24px 70px; }
+.booking-receipt-container { width: min(100%, 960px); margin: auto; }
+.booking-receipt-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+.booking-receipt-toolbar a, .booking-receipt-toolbar button { display: inline-flex; gap: 8px; align-items: center; font: inherit; text-decoration: none; }
+.booking-receipt-toolbar a { color: #007a52; }
+.booking-receipt-toolbar button, .booking-receipt-error button { background: #007a52; color: white; border: 0; border-radius: 8px; padding: 12px 16px; cursor: pointer; }
+.booking-receipt { padding: 32px; background: white; border: 1px solid #dce6df; border-radius: 16px; box-shadow: 0 4px 16px #1938240a; }
+.booking-receipt-heading { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
+.booking-receipt-heading > div > span { font-weight: 700; color: #007a52; }
+.booking-receipt-heading h1 { display: flex; gap: 10px; align-items: center; margin: 12px 0; font-size: 28px; }
+.booking-receipt-heading p { color: #64716a; }
+.booking-receipt-status { padding: 8px 12px; border-radius: 8px; background: #fef3c7; color: #805600; font-size: 14px; }
+.booking-receipt-status.is-paid { color: #087443; background: #dcfce7; }
+.booking-receipt h2 { font-size: 18px; margin: 24px 0 14px; }
+.booking-receipt-id { overflow-wrap: anywhere; padding-bottom: 20px; border-bottom: 1px solid #dce6df; color: #64716a; }
+.booking-receipt-id strong { color: #17211b; }
+.booking-receipt-parties { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.booking-receipt-parties p { color: #64716a; line-height: 1.6; margin: 6px 0; overflow-wrap: anywhere; }
+.booking-receipt-table-wrapper { overflow-x: auto; }
+.booking-receipt table { width: 100%; border-collapse: collapse; text-align: left; }
+.booking-receipt th, .booking-receipt td { padding: 14px 12px; border-bottom: 1px solid #dce6df; line-height: 1.5; }
+.booking-receipt th { background: #f3f8f4; font-size: 14px; }
+.booking-receipt th:last-child, .booking-receipt td:last-child { text-align: right; white-space: nowrap; }
+.booking-receipt-total { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center; padding: 22px 12px; background: #f3f8f4; }
+.booking-receipt-total strong { font-size: 24px; color: #007a52; }
+.booking-receipt-payment dl { margin: 0; }
+.booking-receipt-payment dl > div { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; padding: 9px 0; }
+.booking-receipt-payment dt { color: #64716a; }
+.booking-receipt-payment dd { margin: 0; overflow-wrap: anywhere; }
+.booking-receipt-confirmation { padding: 1px 18px 12px; margin-top: 24px; background: #f3f8f4; border-radius: 10px; line-height: 1.6; }
+.booking-receipt-note { white-space: pre-wrap; overflow-wrap: anywhere; }
+.booking-receipt-error { padding: 20px; background: #fff1f0; color: #b42318; border-radius: 10px; }
+.booking-receipt-checkout { margin-top: 24px; padding: 20px; background: #f3f8f4; border: 1px solid #dce6df; border-radius: 10px; line-height: 1.6; }
+.booking-receipt-checkout h2 { margin-top: 0; }
+.booking-receipt-checkout label { display: flex; gap: 10px; align-items: start; margin: 16px 0; }
+.booking-receipt-checkout input { margin-top: 6px; flex-shrink: 0; }
+.booking-receipt-checkout a { color: #007a52; }
+.booking-receipt-checkout button { background: #007a52; color: white; border: 0; border-radius: 8px; padding: 12px 18px; font: inherit; cursor: pointer; }
+.booking-receipt-checkout button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 600px) {
+  .booking-receipt-page { padding: 24px 16px; }
+  .booking-receipt { padding: 20px 16px; }
+  .booking-receipt-heading { flex-direction: column; }
+  .booking-receipt-parties { grid-template-columns: 1fr; gap: 0; }
+  .booking-receipt-payment dl > div { grid-template-columns: 1fr; gap: 4px; }
+}
+@media print {
+  .booking-receipt-checkout { display: none !important; }
+  body:has(.booking-receipt-page) header:not(.booking-receipt-heading), body:has(.booking-receipt-page) footer, .booking-receipt-toolbar { display: none !important; }
+  .booking-receipt-page { padding: 0; background: white; }
+  .booking-receipt { border: 0; box-shadow: none; padding: 0; }
+  .booking-receipt-heading, .booking-receipt-parties, .booking-receipt-payment, .booking-receipt-confirmation, .booking-receipt tr { break-inside: avoid; }
+}

@@ -18,10 +18,9 @@ import "leaflet/dist/leaflet.css";
 import { getApiError } from "../services/api";
 import { getMatches, type MatchItem, type MatchFilters } from "../services/matchService";
 import "./MatchPage.css";
+import { useAuth } from "../contexts/useAuth";
 
 const mapCenter: [number, number] = [10.79, 106.67];
-
-type MapStyle = "street" | "topographic";
 
 /**
  * CẤU HÌNH NHÀ CUNG CẤP BẢN ĐỒ:
@@ -31,15 +30,9 @@ type MapStyle = "street" | "topographic";
  * - Sau đó ghép key bằng `import.meta.env.VITE_MAP_TILE_KEY` trong URL.
  * - Không ghi API key trực tiếp vào source code hoặc commit key thật lên GitHub.
  */
-const MAP_TILE_PROVIDERS: Record<MapStyle, { url: string; attribution: string }> = {
-  street: {
-    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  },
-  topographic: {
+const MAP_TILE_PROVIDER = {
     url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
     attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
-  },
 };
 
 function formatMatchDate(value: string) {
@@ -87,6 +80,7 @@ function MatchMapBounds({ matches }: { matches: MatchItem[] }) {
 }
 
 function MatchPage() {
+  const { user } = useAuth();
   const location = useLocation();
   const createdMatchId = (location.state as { createdMatchId?: string } | null)?.createdMatchId;
   const [matches, setMatches] = useState<MatchItem[]>([]);
@@ -110,8 +104,6 @@ function MatchPage() {
     }
   });
   const [actionMessage, setActionMessage] = useState("");
-  const [mapStyle, setMapStyle] = useState<MapStyle>("street");
-  const activeTileProvider = MAP_TILE_PROVIDERS[mapStyle];
 
   useEffect(() => {
     let ignore = false;
@@ -290,6 +282,7 @@ function MatchPage() {
                         <Share2 aria-hidden="true" />
                       </button>
                       <Link className="match-view-court" to={`/matches/${match.id}`}>Xem kèo</Link>
+                      {user && user.id !== match.organizer.id && <Link className="match-view-court" to={`/matches/${match.id}`}>Tham gia</Link>}
                     </div>
                   </footer>
                 </article>
@@ -303,9 +296,8 @@ function MatchPage() {
           <MapContainer center={mapCenter} zoom={12} scrollWheelZoom zoomControl={false}>
             <MatchMapBounds matches={matches} />
             <TileLayer
-              key={mapStyle}
-              attribution={activeTileProvider.attribution}
-              url={activeTileProvider.url}
+              attribution={MAP_TILE_PROVIDER.attribution}
+              url={MAP_TILE_PROVIDER.url}
             />
             <ZoomControl position="topright" />
             {filteredMatches.map((match) => {
@@ -331,25 +323,6 @@ function MatchPage() {
               );
             })}
           </MapContainer>
-          <label className="match-map__style-picker">
-            <span>Nền bản đồ</span>
-            <select value={mapStyle} onChange={(event) => {
-              setMapStyle(event.target.value as MapStyle);
-            }}>
-              <option value="street">Đường phố</option>
-              <option value="topographic">Địa hình</option>
-            </select>
-          </label>
-          {/* {tileFailed && (
-            <div className="match-map__error" role="status">
-              <strong>Không tải được nền bản đồ</strong>
-              <span>Hãy kiểm tra Internet, DNS, VPN hoặc tiện ích chặn nội dung.</span>
-              <button type="button" onClick={() => {
-                setTileFailed(false);
-                setMapStyle((current) => current === "street" ? "topographic" : "street");
-              }}>Thử lại</button>
-            </div>
-          )} */}
         </aside>
       </section>
     </div>

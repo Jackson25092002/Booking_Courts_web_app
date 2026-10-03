@@ -101,3 +101,24 @@ export async function getMyBookings() {
   );
   return response.data;
 }
+
+export interface BookingReceipt extends Booking {
+  user: { fullName: string; email: string; phone: string | null };
+  payment: {
+    txnRef: string;
+    status: "WAITING" | "SUCCEEDED" | "FAILED";
+    amount: number;
+    responseCode: string | null;
+    transactionNo: string | null;
+    bankCode: string | null;
+    paidAt: string | null;
+  } | null;
+}
+
+export async function getBookingReceipt(id: string) {
+  return (await api.get<ApiResponse<{ booking: BookingReceipt }>>(
+    `/api/bookings/${encodeURIComponent(id)}/receipt`,
+  )).data;
+}
+
+

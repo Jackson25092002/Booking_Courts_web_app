@@ -20,3 +20,10 @@ export async function getVNPayStatus(txnRef: string) {
   } }>("/api/payments/vnpay/status", { params: { txnRef } });
   return response.data.data;
 }
+
+export async function reconcileVNPayPayment(txnRef: string) {
+  const response = await api.post<{ data: { settled: boolean; message: string; nextReconcileAt?: string } }>(
+    "/api/payments/vnpay/reconcile", { txnRef },
+  );
+  return response.data.data;
+}

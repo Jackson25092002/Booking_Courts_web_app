@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CircleCheck, CircleX, Clock } from "lucide-react";
 import { useAuth } from "../contexts/useAuth";
 import { getApiError } from "../services/api";
-import { getVNPayStatus, type PaymentFeedback } from "../services/paymentService";
+import { getVNPayStatus, reconcileVNPayPayment, type PaymentFeedback } from "../services/paymentService";
 import "./PaymentResultPage.css";
 
 export default function PaymentResultPage() {
@@ -12,11 +12,13 @@ export default function PaymentResultPage() {
   const [status, setStatus] = useState("WAITING");
   const [confirmedAt, setConfirmedAt] = useState<string | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
+  const [bookingId, setBookingId] = useState("");
   const [feedback, setFeedback] = useState<PaymentFeedback | null>(null);
   const [responseCode, setResponseCode] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(true);
   const [version, setVersion] = useState(0);
+  const reconciliation = useRef({ txnRef: "", nextAt: 0 });
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -32,10 +34,25 @@ export default function PaymentResultPage() {
       }
       setChecking(true);
       try {
-        const data = await getVNPayStatus(txnRef);
+        let data = await getVNPayStatus(txnRef);
+        if (stopped) return;
+        if (reconciliation.current.txnRef !== txnRef) reconciliation.current = { txnRef, nextAt: 0 };
+        if (data.payment.status === "WAITING" && Date.now() >= reconciliation.current.nextAt) {
+          reconciliation.current.nextAt = Date.now() + 5 * 60 * 1000;
+          try {
+            const result = await reconcileVNPayPayment(txnRef);
+            if (stopped) return;
+            if (result.nextReconcileAt) reconciliation.current.nextAt = new Date(result.nextReconcileAt).getTime();
+          } catch (reconcileError) {
+            // A missing/slow QueryDR response does not prove that payment failed.
+            if (getApiError(reconcileError).status === 401) throw reconcileError;
+          }
+          data = await getVNPayStatus(txnRef);
+        }
         if (stopped) return;
         setError("");
         setAmount(data.payment.amount);
+        setBookingId(data.payment.bookingId);
         setStatus(data.payment.status);
         setConfirmedAt(data.payment.booking.confirmedAt);
         setFeedback(data.feedback);
@@ -70,6 +87,7 @@ export default function PaymentResultPage() {
       {responseCode && !error && <small>Mã phản hồi VNPay: {responseCode}</small>}
       <div className="payment-result__actions">
         <Link to="/history">Xem lịch sử đặt sân</Link>
+        {success && bookingId && <Link to={`/history/${bookingId}/receipt`}>Xem hóa đơn</Link>}
         {!error && feedback?.canRetry && <Link to="/history">Thanh toán lại đơn hiện tại</Link>}
         {!success && txnRef && <button type="button" disabled={checking} onClick={() => setVersion((value) => value + 1)}>{checking ? "Đang kiểm tra..." : "Kiểm tra lại"}</button>}
       </div>

@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "prisma db seed",
+    "matches:reminders": "tsx scripts/watch-match-reminders.ts",
     "test:approved": "tsx --test lib/auth-flows.test.ts lib/booking.test.ts lib/payment-create.test.ts lib/vnpay.test.ts lib/payment-feedback.test.ts lib/reconcile-payment.test.ts lib/password-recovery.test.ts"
   },
   "dependencies": {

@@ -89,10 +89,22 @@ function AuthProvider({ children }: PropsWithChildren) {
     setUser(response.data.user);
   }
 
-  function signOut() {
+  const signOut = useCallback(() => {
     clearStoredAuth();
     setUser(null);
-  }
+  }, []);
+
+  useEffect(() => {
+    // Tabs on the same origin share the token. Keep the displayed account in
+    // sync so owner pages do not silently request a customer's notifications.
+    function syncAccount(event: StorageEvent) {
+      if (event.key === AUTH_USER_KEY || event.key === ACCESS_TOKEN_KEY || event.key === null) {
+        setUser(localStorage.getItem(ACCESS_TOKEN_KEY) ? readStoredUser() : null);
+      }
+    }
+    window.addEventListener("storage", syncAccount);
+    return () => window.removeEventListener("storage", syncAccount);
+  }, []);
 
   const updateUser = useCallback((nextUser: AuthUser) => {
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser));

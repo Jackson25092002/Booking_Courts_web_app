@@ -12,7 +12,7 @@ import "./BookingHistoryPage.css";
 import { startVNPayPayment } from "../services/paymentService";
 
 const statusLabels: Record<BookingStatus, string> = {
-  PENDING: "Chờ xác nhận",
+  PENDING: "Chưa thanh toán",
   CONFIRMED: "Đã xác nhận",
   PAID: "Đã thanh toán",
   CANCELLED: "Đã hủy",
@@ -171,7 +171,7 @@ function BookingHistoryPage() {
                           {payingId === booking.id ? "Đang xử lý..." : "Thanh toán VNPay"}
                         </button>
                       )}
-                      <Link to={`/courts/${booking.court.id}`}>Xem sân</Link>
+                      <Link to={`/history/${booking.id}/receipt`}>Xem hóa đơn</Link>
                     </div>
                     {booking.latestPayment?.status === "FAILED" && (
                       <div className="booking-history-payment-error">

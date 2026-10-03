@@ -71,6 +71,20 @@ test("RESET-06: email provider failure gives 503 and no token in public response
   const response = await POST(post("/api/auth/forgot-password", { email: "test@example.com" }));
   assert.equal(response.status, 503); assert.equal((await response.json()).token, undefined);
 });
+test("RESET-email: email must match recovery token before database access", async (t) => {
+  const { POST } = await import("../app/api/auth/reset-password/route");
+  const { default: prisma } = await import("./prisma");
+  const { createPasswordResetToken } = await import("./auth");
+  const token = await createPasswordResetToken({ userId, email: "test@example.com", passwordHash: "old-hash" });
+  const reads = stub(t, prisma.user, "findUnique", async () => null);
+  const writes = stub(t, prisma.user, "updateMany", async () => ({ count: 1 }));
+  assert.equal((await POST(post("/api/auth/reset-password", {
+    token, email: "other@example.com", password: "NewPass@123",
+  }))).status, 400);
+  assert.equal(reads.mock.callCount(), 0);
+  assert.equal(writes.mock.callCount(), 0);
+});
+
 test("RESET-07: valid token updates hash once and rejects reuse", async (t) => {
   const { POST } = await import("../app/api/auth/reset-password/route");
   const { default: prisma } = await import("./prisma");
@@ -82,7 +96,7 @@ test("RESET-07: valid token updates hash once and rejects reuse", async (t) => {
     assert.equal(where.id, userId); assert.equal(where.passwordHash, hash);
     hash = data.passwordHash; return { count: 1 };
   });
-  assert.equal((await POST(post("/api/auth/reset-password", { token, password: "NewPass@123" }))).status, 200);
+  assert.equal((await POST(post("/api/auth/reset-password", { token, email: " TEST@EXAMPLE.COM ", password: "NewPass@123" }))).status, 200);
   assert.equal(await verifyPassword("NewPass@123", hash), true);
   assert.equal((await POST(post("/api/auth/reset-password", { token, password: "AgainPass@123" }))).status, 400);
   assert.equal(writes.mock.callCount(), 1);

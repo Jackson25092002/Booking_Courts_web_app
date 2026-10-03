@@ -97,10 +97,17 @@ export async function requestPasswordReset(email: string) {
   return response.data;
 }
 
-export async function resetPassword(token: string, password: string) {
+export async function resetPassword(token: string, password: string, email: string) {
   const response = await api.post<Omit<ApiResponse<never>, "data">>(
     "/api/auth/reset-password",
-    { token, password },
+    { token, password, email },
+  );
+  return response.data;
+}
+
+export async function demoResetPassword(email: string, password: string, confirmPassword: string) {
+  const response = await api.post<Omit<ApiResponse<never>, "data">>(
+    "/api/auth/demo-reset-password", { email, password, confirmPassword },
   );
   return response.data;
 }

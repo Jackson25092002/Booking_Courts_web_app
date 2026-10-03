@@ -33,6 +33,10 @@ export async function POST(request: Request) {
     return jsonResponse({ success: false, message: "Liên kết khôi phục không hợp lệ hoặc đã hết hạn" }, 400);
   }
 
+  if (parsed.data.email && parsed.data.email !== payload.email) {
+    return jsonResponse({ success: false, message: "Email không khớp với liên kết khôi phục" }, 400);
+  }
+
   try {
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },

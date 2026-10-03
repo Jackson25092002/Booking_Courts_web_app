@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Kiến trúc hệ thống Lên Kèo Thôi</title>
+  <desc id="desc">Người dùng truy cập frontend React trên Vercel; frontend gọi backend Next.js API trên Vercel. Backend truy cập PostgreSQL qua Prisma, tạo giao dịch VNPay, nhận return và IPN, gửi email qua Resend. Frontend hiển thị bản đồ dùng OpenStreetMap.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#256b52"/></marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2563a6"/></marker>
+    <style>
+      text{font-family:Arial,'DejaVu Sans',sans-serif;fill:#17342b}
+      .title{font-size:34px;font-weight:700}
+      .sub{font-size:19px;fill:#527266}
+      .box{fill:#fff;stroke:#86b6a2;stroke-width:2.5;rx:18}
+      .service{fill:#f0f8f4;stroke:#4e9b79;stroke-width:2.5;rx:18}
+      .external{fill:#f2f7fb;stroke:#76a4ca;stroke-width:2.5;rx:18}
+      .heading{font-size:24px;font-weight:700}
+      .detail{font-size:18px}
+      .label{font-size:17px;font-weight:600;fill:#366b55}
+      .blabel{font-size:17px;font-weight:600;fill:#2563a6}
+      .line{fill:none;stroke:#256b52;stroke-width:3;marker-end:url(#arrow)}
+      .both{fill:none;stroke:#256b52;stroke-width:3;marker-start:url(#arrow);marker-end:url(#arrow)}
+      .blue{fill:none;stroke:#2563a6;stroke-width:3;marker-end:url(#arrowBlue)}
+      .dash{stroke-dasharray:9 7}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f8fbf9"/>
+  <text class="title" x="800" y="62" text-anchor="middle">KIẾN TRÚC HỆ THỐNG LÊN KÈO THÔI</text>
+  <text class="sub" x="800" y="94" text-anchor="middle">Triển khai frontend và backend độc lập trên Vercel</text>
+
+  <rect class="box" x="55" y="292" width="235" height="170"/>
+  <text class="heading" x="172" y="350" text-anchor="middle">Người dùng</text>
+  <text class="detail" x="172" y="386" text-anchor="middle">Khách hàng</text>
+  <text class="detail" x="172" y="414" text-anchor="middle">Chủ sân · Admin</text>
+
+  <rect class="service" x="365" y="253" width="350" height="246"/>
+  <text class="heading" x="540" y="307" text-anchor="middle">Frontend · Vercel</text>
+  <text class="detail" x="540" y="346" text-anchor="middle">React · TypeScript · Vite</text>
+  <text class="detail" x="540" y="378" text-anchor="middle">Trang sân · Tìm kèo · Tài khoản</text>
+  <text class="detail" x="540" y="410" text-anchor="middle">Đặt sân · Kết quả thanh toán</text>
+  <text class="detail" x="540" y="442" text-anchor="middle">Leaflet · React Leaflet</text>
+
+  <rect class="service" x="800" y="205" width="360" height="340"/>
+  <text class="heading" x="980" y="256" text-anchor="middle">Backend API · Vercel</text>
+  <text class="detail" x="980" y="294" text-anchor="middle">Next.js · TypeScript</text>
+  <text class="detail" x="980" y="330" text-anchor="middle">Đăng ký · Đăng nhập · JWT</text>
+  <text class="detail" x="980" y="363" text-anchor="middle">Sân · Kèo · Đặt sân</text>
+  <text class="detail" x="980" y="396" text-anchor="middle">Thanh toán · Thông báo</text>
+  <text class="detail" x="980" y="429" text-anchor="middle">Chủ sân xác nhận đơn</text>
+  <line x1="837" y1="458" x2="1123" y2="458" stroke="#acd0bc" stroke-width="2"/>
+  <text class="detail" x="980" y="493" text-anchor="middle">Prisma ORM</text>
+
+  <rect class="box" x="1244" y="251" width="300" height="235"/>
+  <text class="heading" x="1394" y="304" text-anchor="middle">PostgreSQL</text>
+  <text class="detail" x="1394" y="341" text-anchor="middle">Cơ sở dữ liệu hosting</text>
+  <text class="detail" x="1394" y="379" text-anchor="middle">User · Court · Booking</text>
+  <text class="detail" x="1394" y="411" text-anchor="middle">Payment · Match</text>
+  <text class="detail" x="1394" y="443" text-anchor="middle">Notification · Review</text>
+
+  <path class="both" d="M290 376 H365"/>
+  <text class="label" x="328" y="355" text-anchor="middle">Web</text>
+  <path class="both" d="M715 376 H800"/>
+  <text class="label" x="757" y="355" text-anchor="middle">HTTPS/JSON</text>
+  <path class="both" d="M1160 376 H1244"/>
+  <text class="label" x="1202" y="355" text-anchor="middle">SQL</text>
+
+  <rect class="external" x="365" y="678" width="350" height="187"/>
+  <text class="heading" x="540" y="733" text-anchor="middle">Bản đồ</text>
+  <text class="detail" x="540" y="774" text-anchor="middle">OpenStreetMap / OpenTopoMap</text>
+  <text class="detail" x="540" y="809" text-anchor="middle">Dữ liệu nền bản đồ (tiles)</text>
+  <path class="blue" d="M540 499 V678"/>
+  <text class="blabel" x="556" y="595">Tải tiles</text>
+
+  <rect class="external" x="800" y="678" width="360" height="187"/>
+  <text class="heading" x="980" y="733" text-anchor="middle">VNPay Sandbox</text>
+  <text class="detail" x="980" y="774" text-anchor="middle">Cổng thanh toán thử nghiệm</text>
+  <text class="detail" x="980" y="809" text-anchor="middle">Return URL · IPN · Đối soát</text>
+  <path class="blue" d="M980 545 V678"/>
+  <text class="blabel" x="995" y="613">Tạo giao dịch / IPN</text>
+  <path class="blue dash" d="M800 802 H752 V541 H601 V499"/>
+  <text class="blabel" x="750" y="560" text-anchor="end">Chuyển hướng trình duyệt</text>
+
+  <rect class="external" x="1244" y="678" width="300" height="187"/>
+  <text class="heading" x="1394" y="733" text-anchor="middle">Resend API</text>
+  <text class="detail" x="1394" y="774" text-anchor="middle">Email khôi phục mật khẩu</text>
+  <path class="blue" d="M1100 545 V611 H1394 V678"/>
+  <text class="blabel" x="1283" y="598">Gửi email</text>
+
+  <text class="sub" x="800" y="942" text-anchor="middle">Luồng chính: người dùng → giao diện → API → PostgreSQL; dịch vụ ngoài hỗ trợ bản đồ, thanh toán và email.</text>
+</svg>
